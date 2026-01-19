@@ -12,6 +12,7 @@ class Board {
 public:
     void resetBoard();
     Board();
+    [[nodiscard]] Piece* atPosition(Position position) const;
 };
 
 

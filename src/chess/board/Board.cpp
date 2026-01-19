@@ -44,3 +44,7 @@ void Board::resetBoard() {
 Board::Board() : grid{} {
     resetBoard();
 }
+
+Piece* Board::atPosition(const Position position) const {
+    return grid[position.x][position.y];
+}
