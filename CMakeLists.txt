@@ -4,7 +4,6 @@ project(cchess)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(cchess main.cpp
-        src/chess/pieces/Piece.cpp
         src/chess/pieces/Piece.h
         src/chess/board/Board.cpp
         src/chess/board/Board.h
@@ -22,4 +21,6 @@ add_executable(cchess main.cpp
         src/chess/pieces/Rook.h
         src/chess/pieces/Bishop.cpp
         src/chess/pieces/Bishop.h
+        src/chess/move/MoveHistory.cpp
+        src/chess/move/MoveHistory.h
 )

@@ -4,6 +4,7 @@
 
 #ifndef CCHESS_PIECE_H
 #define CCHESS_PIECE_H
+#include "../move/MoveHistory.h"
 
 enum class PieceKind {
     king,
@@ -27,7 +28,7 @@ class Piece {
     Piece(PieceKind kind, PieceColor color);
     virtual ~Piece() = default;
 
-    virtual void move(int x1, int y1, int x2, int y2, Piece* board[8][8]);
+    virtual void move(Position from, Position to, Piece* board[8][8]);
 };
 
 
