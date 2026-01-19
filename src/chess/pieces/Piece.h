@@ -4,6 +4,7 @@
 
 #ifndef CCHESS_PIECE_H
 #define CCHESS_PIECE_H
+#include "../board/Board.h"
 #include "../move/MoveHistory.h"
 
 enum class PieceKind {
@@ -21,14 +22,14 @@ enum class PieceColor {
 };
 
 class Piece {
-    PieceKind kind;
+public:
     PieceColor color;
-
-    public:
+    PieceKind kind;
     Piece(PieceKind kind, PieceColor color);
     virtual ~Piece() = default;
 
-    virtual void move(Position from, Position to, Piece* board[8][8]);
+    virtual bool isValidMove(Position from, Position to, Board& board);
+    virtual std::vector<Position> generateMoves(Position pos, Board& board);
 };
 
 

@@ -6,10 +6,12 @@
 #define CCHESS_PAWN_H
 #include "Piece.h"
 
-
 class Pawn : public Piece {
 public:
     explicit Pawn(const PieceColor color) : Piece(PieceKind::pawn, color) {}
+
+    bool isValidMove(Position from, Position to, Board& board) override;
+    std::vector<Position> generateMoves(Position pos, Board& board) override;
 };
 
 
