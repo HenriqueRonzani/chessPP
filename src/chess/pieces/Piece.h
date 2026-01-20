@@ -25,9 +25,10 @@ class Piece {
 public:
     PieceColor color;
     PieceKind kind;
-    Piece(PieceKind kind, PieceColor color);
-    virtual ~Piece() = default;
+    Piece(PieceKind, PieceColor) : color(), kind() {} ;
 
+    bool isEnemy(const Piece* piece) const;
+    virtual ~Piece() = default;
     virtual bool isValidMove(Position from, Position to, Board& board);
     virtual std::vector<Position> generateMoves(Position pos, Board& board);
 };

@@ -10,6 +10,9 @@
 class Rook : public Piece {
 public:
     explicit Rook(const PieceColor color) : Piece(PieceKind::rook, color) {}
+
+    bool isValidMove(Position from, Position to, Board& board) override;
+    std::vector<Position> generateMoves(Position pos, Board& board) override;
 };
 
 

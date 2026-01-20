@@ -23,4 +23,5 @@ add_executable(cchess main.cpp
         src/chess/pieces/Bishop.h
         src/chess/move/MoveHistory.cpp
         src/chess/move/MoveHistory.h
+        src/chess/pieces/Piece.cpp
 )
