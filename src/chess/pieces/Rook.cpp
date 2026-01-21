@@ -4,15 +4,6 @@
 
 #include "Rook.h"
 
-#include <algorithm>
-
-bool Rook::isValidMove(const Position from, Position to, Board& board) {
-    const std::vector<Position> validMoves = generateMoves(from, board);
-    return std::ranges::any_of(validMoves, [&](const auto& move) {
-        return move == to;
-    });
-}
-
 std::vector<Position> Rook::generateMoves(Position pos, Board &board) {
     std::vector<Position> possibleMoves;
 

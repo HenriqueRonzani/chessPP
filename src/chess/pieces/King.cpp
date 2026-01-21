@@ -4,15 +4,6 @@
 
 #include "King.h"
 
-#include <algorithm>
-
-bool King::isValidMove(const Position from, Position to, Board& board) {
-    const std::vector<Position> validMoves = generateMoves(from, board);
-    return std::ranges::any_of(validMoves, [&](const auto& move) {
-        return move == to;
-    });
-}
-
 std::vector<Position> King::generateMoves(Position pos, Board &board) {
     std::vector<Position> possibleMoves;
 

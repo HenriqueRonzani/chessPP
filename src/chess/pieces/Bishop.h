@@ -10,6 +10,8 @@
 class Bishop : public Piece {
 public:
     explicit Bishop(const PieceColor color) : Piece(PieceKind::bishop, color) {}
+
+    std::vector<Position> generateMoves(Position pos, Board& board) override;
 };
 
 
