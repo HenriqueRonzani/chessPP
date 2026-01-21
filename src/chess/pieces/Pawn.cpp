@@ -32,7 +32,7 @@ std::vector<Position> Pawn::generateMoves(const Position pos, Board& board) {
         const Position capturePosition = { pos.x + xShift, pos.y + movementDirection};
         if (capturePosition.isValid()) {
             const Piece* pieceAtPosition = board.atPosition(capturePosition);
-            if (pieceAtPosition != nullptr && pieceAtPosition->color != color) {
+            if (pieceAtPosition != nullptr && pieceAtPosition->isEnemy(this)) {
                 possibleMoves.push_back(capturePosition);
             }
         }

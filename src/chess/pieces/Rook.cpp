@@ -15,7 +15,7 @@ bool Rook::isValidMove(const Position from, Position to, Board& board) {
 
 std::vector<Position> Rook::generateMoves(Position pos, Board &board) {
     std::vector<Position> possibleMoves;
-        
+
     const std::vector<std::vector<int>> moveDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     for (const std::vector<int>& dir : moveDirections) {
         for (int i = 1; i < 8 - pos.x; i++) {
@@ -26,7 +26,7 @@ std::vector<Position> Rook::generateMoves(Position pos, Board &board) {
             if (pieceAtPosition == nullptr) {
                 possibleMoves.push_back(move);
             } else {
-                if (pieceAtPosition->color != color) {
+                if (pieceAtPosition->isEnemy(this)) {
                     possibleMoves.push_back(move);
                 }
                 break;
