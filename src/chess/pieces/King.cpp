@@ -4,21 +4,15 @@
 
 #include "King.h"
 
+#include <algorithm>
+
 std::vector<Position> King::generateMoves(Position pos, Board &board) {
-    std::vector<Position> possibleMoves;
+    const std::vector<Position> diagonalDirections = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
+    const std::vector<Position> horizontalDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {
-            if (i == 0 && j == 0) continue;
-            const Position movePosition = {pos.x + i, pos.y + j};
+    std::vector<Position> moves = generateSlidingMoves(pos, board, horizontalDirections, 1);
+    std::vector<Position> diagonalMoves = generateSlidingMoves(pos, board, diagonalDirections, 1);
 
-            if (movePosition.isValid()) {
-                const Piece* pieceAtPosition = board.atPosition(movePosition);
-                if (pieceAtPosition == nullptr || pieceAtPosition->isEnemy(this))
-                   possibleMoves.push_back(movePosition);
-            }
-        }
-    }
-
-    return possibleMoves;
+    moves.insert(moves.end(), diagonalMoves.begin(), diagonalMoves.end());
+    return moves;
 }
