@@ -7,6 +7,8 @@
 #include "../board/Board.h"
 #include "../move/MoveHistory.h"
 
+class Board;
+
 enum class PieceKind {
     king,
     queen,
@@ -27,8 +29,9 @@ protected:
 public:
     PieceColor color;
     PieceKind kind;
-    Piece(PieceKind, PieceColor) : color(), kind() {} ;
+    Piece(PieceKind k, PieceColor c) : color(c), kind(k) {} ;
 
+    [[nodiscard]] char toChar() const;
     bool isEnemy(const Piece* piece) const;
     virtual ~Piece() = default;
     virtual bool isValidMove(Position from, Position to, Board& board);

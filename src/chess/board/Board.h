@@ -5,7 +5,10 @@
 #ifndef CCHESS_BOARD_H
 #define CCHESS_BOARD_H
 #include "../pieces/Piece.h"
+#include "Position.h"
+#include <string>
 
+class Piece;
 
 class Board {
     Piece* grid[8][8];
@@ -13,6 +16,7 @@ public:
     void resetBoard();
     Board();
     [[nodiscard]] Piece* atPosition(Position position) const;
+    std::string toString();
 };
 
 

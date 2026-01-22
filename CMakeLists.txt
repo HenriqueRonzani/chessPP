@@ -4,14 +4,13 @@ project(cchess)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(cchess main.cpp
+        src/chess/board/Position.h
         src/chess/pieces/Piece.h
         src/chess/board/Board.cpp
         src/chess/board/Board.h
         src/chess/pieces/Pawn.cpp
         src/chess/pieces/Pawn.h
         src/chess/pieces/King.cpp
-        src/chess/pieces/King.h
-        src/chess/pieces/King.h
         src/chess/pieces/King.h
         src/chess/pieces/Queen.cpp
         src/chess/pieces/Queen.h

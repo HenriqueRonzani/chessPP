@@ -10,6 +10,7 @@
 #include "../pieces/Pawn.h"
 #include "../pieces/Queen.h"
 #include "../pieces/Rook.h"
+#include "./Position.h"
 
 void Board::resetBoard() {
     for (auto & i : grid) {
@@ -46,5 +47,21 @@ Board::Board() : grid{} {
 }
 
 Piece* Board::atPosition(const Position position) const {
-    return grid[position.x][position.y];
+    if (position.isValid())
+        return grid[position.x][position.y];
+    return nullptr;
+}
+
+std::string Board::toString() {
+    std::string boardString;
+    for (const auto & rows : grid) {
+        for (const auto & piece : rows) {
+            if (piece != nullptr)
+                boardString += piece->toChar();
+            else
+                boardString += "-";
+        }
+        boardString += "\n";
+    }
+    return boardString;
 }

@@ -6,6 +6,22 @@
 
 #include <algorithm>
 
+char Piece::toChar() const {
+    char kindChar;
+    switch (kind) {
+        case PieceKind::king:   kindChar = 'k'; break;
+        case PieceKind::queen:  kindChar = 'q'; break;
+        case PieceKind::rook:   kindChar = 'r'; break;
+        case PieceKind::knight: kindChar = 'n'; break;
+        case PieceKind::bishop: kindChar = 'b'; break;
+        case PieceKind::pawn:   kindChar = 'p'; break;
+        default:                kindChar = '-'; break;
+    }
+    return color == PieceColor::white
+        ? static_cast<char>(std::toupper(static_cast<unsigned char>(kindChar)))
+        : kindChar;
+}
+
 bool Piece::isEnemy(const Piece* piece) const {
     return piece->color != color;
 }
