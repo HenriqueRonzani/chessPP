@@ -23,4 +23,8 @@ add_executable(cchess main.cpp
         src/chess/move/MoveHistory.cpp
         src/chess/move/MoveHistory.h
         src/chess/pieces/Piece.cpp
+        src/chess/move/Interpreter.cpp
+        src/chess/move/Interpreter.h
+        src/chess/move/Token.cpp
+        src/chess/move/Token.h
 )
