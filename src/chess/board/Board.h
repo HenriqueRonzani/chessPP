@@ -16,7 +16,7 @@ public:
     void resetBoard();
     Board();
     [[nodiscard]] Piece* atPosition(Position position) const;
-    std::string toString();
+    [[nodiscard]] std::string toString() const;
 };
 
 

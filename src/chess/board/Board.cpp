@@ -3,7 +3,6 @@
 //
 
 #include "Board.h"
-
 #include "../pieces/Bishop.h"
 #include "../pieces/King.h"
 #include "../pieces/Knight.h"
@@ -48,18 +47,20 @@ Board::Board() : grid{} {
 
 Piece* Board::atPosition(const Position position) const {
     if (position.isValid())
-        return grid[position.x][position.y];
+        return grid[position.y][position.x];
     return nullptr;
 }
 
-std::string Board::toString() {
+std::string Board::toString() const {
     std::string boardString;
-    for (const auto & rows : grid) {
-        for (const auto & piece : rows) {
-            if (piece != nullptr)
+    for (int i = 7; i >= 0; i--) {
+        boardString += std::to_string(i) + " ";
+        for (int j = 0; j < 8; j++) {
+            if (const Piece* piece = grid[i][j]; piece != nullptr)
                 boardString += piece->toChar();
             else
                 boardString += "-";
+            boardString += " ";
         }
         boardString += "\n";
     }

@@ -29,7 +29,7 @@ protected:
 public:
     PieceColor color;
     PieceKind kind;
-    Piece(PieceKind k, PieceColor c) : color(c), kind(k) {} ;
+    Piece(const PieceKind k, const PieceColor c) : color(c), kind(k) {} ;
 
     [[nodiscard]] char toChar() const;
     bool isEnemy(const Piece* piece) const;
