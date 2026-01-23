@@ -3,3 +3,11 @@
 //
 
 #include "Knight.h"
+
+std::vector<Position> Knight::generateMoves(const Position pos, Board &board) {
+    static const std::vector<Position> moveDirections = {
+        {1, 2}, {2, 1}, {2, -1}, {1, -2},
+        {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}
+    };
+    return generateSlidingMoves(pos, board, moveDirections, 1);
+}

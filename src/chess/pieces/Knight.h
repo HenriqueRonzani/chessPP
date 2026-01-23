@@ -10,6 +10,8 @@
 class Knight : public Piece {
 public:
     explicit Knight(const PieceColor color) : Piece(PieceKind::knight, color) {}
+
+    std::vector<Position> generateMoves(Position pos, Board& boardn) override;
 };
 
 
