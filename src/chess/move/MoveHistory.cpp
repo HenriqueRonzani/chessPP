@@ -3,3 +3,15 @@
 //
 
 #include "MoveHistory.h"
+
+std::optional<Move> MoveHistory::getLastMove() const {
+    if (history.empty()) return std::nullopt;
+    return history.back();
+}
+
+PieceColor MoveHistory::getNextMoveColor() const {
+    const std::optional<Move> lastMove = getLastMove();
+    return lastMove
+        ? Piece::getOpposingColor(lastMove->movedPiece->color)
+        : PieceColor::white;
+}

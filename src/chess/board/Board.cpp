@@ -3,6 +3,9 @@
 //
 
 #include "Board.h"
+
+#include <stdexcept>
+
 #include "../pieces/Bishop.h"
 #include "../pieces/King.h"
 #include "../pieces/Knight.h"
@@ -65,4 +68,36 @@ std::string Board::toString() const {
         boardString += "\n";
     }
     return boardString;
+}
+
+Position Board::findMoveablePiece(
+    const Position target,
+    const PieceKind kind,
+    const PieceColor color,
+    const int pieceColumn,
+    const int pieceRow
+    ) const {
+    std::vector<Position> moveablePiecesPositions;
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            const Piece* piece = grid[j][i];
+            if (!piece || piece->kind != kind || piece->color != color) continue;
+
+            if (pieceColumn != -1 && pieceColumn != i) continue;
+            if (pieceRow != -1 && pieceRow != j) continue;
+
+            if (piece->isValidMove({i, j}, target, *this)) {
+                moveablePiecesPositions.emplace_back(i, j);
+            }
+        }
+    }
+
+    if (moveablePiecesPositions.empty())
+        throw std::invalid_argument("No pieces are able to do this move");
+
+    if (moveablePiecesPositions.size() > 1)
+        throw std::invalid_argument("Multiple pieces are able to do this move");
+
+    return moveablePiecesPositions[0];
 }

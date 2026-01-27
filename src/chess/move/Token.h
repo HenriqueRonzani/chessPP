@@ -9,28 +9,25 @@
 constexpr std::string_view PIECES = "KQRBN";
 constexpr std::string_view COLUMNS = "abcdefgh";
 constexpr std::string_view ROWS = "12345678";
-constexpr std::string_view SPECIALS = "+#=";
+constexpr std::string_view SPECIALS = "+#";
+constexpr std::string_view PROMOTION = "=";
 
 enum class TokenType {
     Piece,
     Column,
     Row,
     Action,
+    Promotion,
     Special,
 };
 
-struct MoveData {
-
-};
-
-class Token {
+struct Token {
     TokenType type;
     char value;
 
-    static TokenType getTokenType(const char v);
+    static TokenType getTokenType(char v);
 
-public:
-    explicit Token(const char v);
+    explicit Token(char v);
 };
 
 

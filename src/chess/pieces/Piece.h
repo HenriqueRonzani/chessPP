@@ -10,12 +10,13 @@
 class Board;
 
 enum class PieceKind {
-    king,
-    queen,
-    rook,
-    knight,
-    bishop,
-    pawn
+    King,
+    Queen,
+    Rook,
+    Knight,
+    Bishop,
+    Pawn,
+    None
 };
 
 enum class PieceColor {
@@ -34,9 +35,10 @@ public:
     [[nodiscard]] char toChar() const;
     bool isEnemy(const Piece* piece) const;
     virtual ~Piece() = default;
-    virtual bool isValidMove(Position from, Position to, Board& board);
+    [[nodiscard]] virtual bool isValidMove(Position from, Position to, const Board& board) const;
+    [[nodiscard]] virtual std::vector<Position> generateMoves(Position pos, const Board& board) const = 0;
 
-    virtual std::vector<Position> generateMoves(Position pos, Board& board);
+    static PieceColor getOpposingColor (PieceColor color);
 };
 
 

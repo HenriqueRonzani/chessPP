@@ -8,9 +8,9 @@
 
 class Bishop : public Piece {
 public:
-    explicit Bishop(const PieceColor color) : Piece(PieceKind::bishop, color) {}
+    explicit Bishop(const PieceColor color) : Piece(PieceKind::Bishop, color) {}
 
-    std::vector<Position> generateMoves(Position pos, Board& board) override;
+    [[nodiscard]] std::vector<Position> generateMoves(Position pos, const Board& board) const override;
 };
 
 

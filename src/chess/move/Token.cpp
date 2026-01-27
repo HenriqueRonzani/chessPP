@@ -17,5 +17,6 @@ TokenType Token::getTokenType(const char v) {
     if (COLUMNS.find(v) != std::string_view::npos) return TokenType::Column;
     if (ROWS.find(v) != std::string_view::npos) return TokenType::Row;
     if (SPECIALS.find(v) != std::string_view::npos) return TokenType::Special;
+    if (PROMOTION.find(v) != std::string_view::npos) return TokenType::Promotion;
     throw std::invalid_argument("Invalid character on move");
 }

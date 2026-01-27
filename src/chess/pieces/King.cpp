@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-std::vector<Position> King::generateMoves(Position pos, Board &board) {
+std::vector<Position> King::generateMoves(const Position pos, const Board &board) const {
     const std::vector<Position> diagonalDirections = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
     const std::vector<Position> horizontalDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 

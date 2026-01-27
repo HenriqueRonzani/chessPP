@@ -17,6 +17,7 @@ public:
     Board();
     [[nodiscard]] Piece* atPosition(Position position) const;
     [[nodiscard]] std::string toString() const;
+    [[nodiscard]] Position findMoveablePiece (Position target, PieceKind kind, PieceColor color, int pieceColumn = -1, int pieceRow = -1) const;
 };
 
 

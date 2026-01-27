@@ -4,7 +4,7 @@
 
 #include "Knight.h"
 
-std::vector<Position> Knight::generateMoves(const Position pos, Board &board) {
+std::vector<Position> Knight::generateMoves(const Position pos, const Board &board) const {
     static const std::vector<Position> moveDirections = {
         {1, 2}, {2, 1}, {2, -1}, {1, -2},
         {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}

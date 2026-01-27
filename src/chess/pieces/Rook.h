@@ -9,9 +9,9 @@
 
 class Rook : public Piece {
 public:
-    explicit Rook(const PieceColor color) : Piece(PieceKind::rook, color) {}
+    explicit Rook(const PieceColor color) : Piece(PieceKind::Rook, color) {}
 
-    std::vector<Position> generateMoves(Position pos, Board& board) override;
+    [[nodiscard]] std::vector<Position> generateMoves(Position pos, const Board& board) const override;
 };
 
 

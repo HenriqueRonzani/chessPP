@@ -9,12 +9,12 @@
 char Piece::toChar() const {
     char kindChar;
     switch (kind) {
-        case PieceKind::king:   kindChar = 'k'; break;
-        case PieceKind::queen:  kindChar = 'q'; break;
-        case PieceKind::rook:   kindChar = 'r'; break;
-        case PieceKind::knight: kindChar = 'n'; break;
-        case PieceKind::bishop: kindChar = 'b'; break;
-        case PieceKind::pawn:   kindChar = 'p'; break;
+        case PieceKind::King:   kindChar = 'k'; break;
+        case PieceKind::Queen:  kindChar = 'q'; break;
+        case PieceKind::Rook:   kindChar = 'r'; break;
+        case PieceKind::Knight: kindChar = 'n'; break;
+        case PieceKind::Bishop: kindChar = 'b'; break;
+        case PieceKind::Pawn:   kindChar = 'p'; break;
         default:                kindChar = '-'; break;
     }
     return color == PieceColor::white
@@ -26,7 +26,7 @@ bool Piece::isEnemy(const Piece* piece) const {
     return piece->color != color;
 }
 
-bool Piece::isValidMove(const Position from, Position to, Board& board) {
+bool Piece::isValidMove(const Position from, Position to, const Board& board) const {
     const std::vector<Position> validMoves = generateMoves(from, board);
     return std::ranges::any_of(validMoves, [&](const auto& move) {
         return move == to;
@@ -55,6 +55,12 @@ std::vector<Position> Piece::generateSlidingMoves(const Position pos, const Boar
     return possibleMoves;
 }
 
-std::vector<Position> Piece::generateMoves(Position pos, Board &board) {
+std::vector<Position> Piece::generateMoves(const Position pos, const Board &board) const {
     return {};
+}
+
+PieceColor Piece::getOpposingColor(const PieceColor color) {
+    return color == PieceColor::black
+     ? PieceColor::white
+     : PieceColor::black;
 }

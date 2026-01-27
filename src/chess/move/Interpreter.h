@@ -5,14 +5,20 @@
 #ifndef CCHESS_INTERPRETER_H
 #define CCHESS_INTERPRETER_H
 #include <string>
-
 #include "Token.h"
+#include "./MoveHistory.h"
 #include "../pieces/Piece.h"
 
 
 class Interpreter {
-    // bool parse(std::string moveString);
-    bool validateCharacters(const std::string &moveString);
+    static Move parse(const std::string_view &moveString, const MoveHistory& moveHistory, const Board& board);
+
+    static bool isCapture(const std::vector<Token>& tokens);
+
+    static Move findPieceFromTokens(std::vector<Token> &tokens, PieceColor pieceColor, const Board &board);
+    static PieceKind getPieceKindFromMove(char p);
+
+    // bool validateCharacters(const std::string &moveString);
     // bool validateMove(Piece piece, Position position);
 };
 

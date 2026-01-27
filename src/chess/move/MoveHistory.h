@@ -4,6 +4,7 @@
 
 #ifndef CCHESS_MOVEHISTORY_H
 #define CCHESS_MOVEHISTORY_H
+#include <optional>
 #include <string>
 #include <vector>
 #include "../board/Position.h"
@@ -13,21 +14,23 @@ class Piece;
 
 struct Move {
     std::string moveText;
-    Piece* movedPiece;
-    Piece* capturedPiece = nullptr;
+    const Piece* movedPiece;
+    const Piece* capturedPiece = nullptr;
     Position from;
     Position to;
 
-    Move();
+    bool isCastling = false;
+    PieceKind promotionType = PieceKind::None;
+    bool isEnPassant = false;
 };
-
-
 
 class MoveHistory {
     std::vector<Move> history;
 
     public:
-    MoveHistory();
+    MoveHistory() = default;
+    [[nodiscard]] std::optional<Move> getLastMove() const;
+    [[nodiscard]] PieceColor getNextMoveColor() const;
 };
 
 
