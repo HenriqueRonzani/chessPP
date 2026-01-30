@@ -54,29 +54,33 @@ Move Interpreter::findPieceFromTokens(std::vector<Token>& tokens, const PieceCol
         else if (t.type == TokenType::Row) originRow = t.value - '1';
     }
 
+    const Position piecePosition = board.findMoveablePiece(target, pieceKind, pieceColor, originColumn, originRow);
+
+
+    Piece* capturedPiece = board.atPosition(target);
     PieceKind promotionType = PieceKind::None;
     bool isEnPassant = false;
+
     if (pieceKind == PieceKind::Pawn) {
         auto itPromotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
         if (itPromotion != tokens.end()) {
             promotionType = getPieceKindFromMove(std::next(itPromotion)->value);
         }
-        if (isCapture(tokens) & !board.atPosition(target)) {
+        if (isCapture(tokens) && !capturedPiece) {
             isEnPassant = true;
+            capturedPiece = board.atPosition({target.x, piecePosition.y});
         }
     }
 
-    const Position piecePosition = board.findMoveablePiece(target, pieceKind, pieceColor, originColumn, originRow);
-
     return {
-        std::string(moveString),
-        board.atPosition(piecePosition),
-        isCapture(tokens) ? board.atPosition(target) : nullptr,
-        piecePosition,
-        target,
-        false,
-        promotionType,
-        isEnPassant
+        .moveText = std::string(moveString),
+        .movedPiece = board.atPosition(piecePosition),
+        .capturedPiece = capturedPiece,
+        .from = piecePosition,
+        .to = target,
+        .isCastling = false,
+        .promotionType = promotionType,
+        .isEnPassant = isEnPassant
     };
 }
 
