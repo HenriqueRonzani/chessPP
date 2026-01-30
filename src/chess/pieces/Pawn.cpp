@@ -30,5 +30,18 @@ std::vector<Position> Pawn::generateMoves(const Position pos, const Board& board
         }
     }
 
+    if (const auto lastMoveOpt = board.history.getLastMove()) {
+        const Move& lastMove = *lastMoveOpt;
+        if (
+            lastMove.movedPiece->kind == PieceKind::Pawn &&
+            isEnemy(lastMove.movedPiece) &&
+            std::abs(lastMove.to.y - lastMove.from.y) == 2 &&
+            pos.y == lastMove.to.y &&
+            std::abs(pos.x - lastMove.to.x) == 1
+        ) {
+            possibleMoves.push_back({lastMove.to.x, pos.y + movementDirection});
+        }
+    }
+
     return possibleMoves;
 }
