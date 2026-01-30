@@ -6,6 +6,7 @@
 #define CCHESS_BOARD_H
 #include "Position.h"
 #include <string>
+#include "../move/MoveHistory.h"
 #include "../pieces/Piece.h"
 
 class Piece;
@@ -19,6 +20,8 @@ public:
     [[nodiscard]] Piece* atPosition(Position position) const;
     [[nodiscard]] std::string toString() const;
     [[nodiscard]] Position findMoveablePiece (Position target, PieceKind kind, PieceColor color, int pieceColumn = -1, int pieceRow = -1) const;
+    void movePiece(Position from, Position to);
+    void handleMove(const std::string& moveString);
 };
 
 

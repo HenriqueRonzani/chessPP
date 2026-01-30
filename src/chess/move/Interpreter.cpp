@@ -18,18 +18,18 @@ constexpr std::string castleCharacters = "O-";
 const std::string allowedChars = allowedPieces + allowedColumns + allowedRanks + allowedActions + castleCharacters;
 
 
-Move Interpreter::parse(const std::string_view &moveString, const MoveHistory& moveHistory, const Board& board) {
+Move Interpreter::parse(const std::string_view &moveString, const Board& board) {
     std::vector<Token> tokens;
     for (const char character : moveString) {
         tokens.emplace_back(character);
     }
 
-    const PieceColor pieceColor = moveHistory.getNextMoveColor();
+    const PieceColor pieceColor = board.history.getNextMoveColor();
 
-    return findPieceFromTokens(tokens, pieceColor, board);
+    return findPieceFromTokens(tokens, pieceColor, board, moveString);
 }
 
-Move Interpreter::findPieceFromTokens(std::vector<Token>& tokens, const PieceColor pieceColor, const Board& board) {
+Move Interpreter::findPieceFromTokens(std::vector<Token>& tokens, const PieceColor pieceColor, const Board& board, const std::string_view moveString) {
     const PieceKind pieceKind = tokens[0].type == TokenType::Piece
         ? getPieceKindFromMove(tokens[0].value)
         : PieceKind::Pawn;
@@ -55,22 +55,28 @@ Move Interpreter::findPieceFromTokens(std::vector<Token>& tokens, const PieceCol
     }
 
     PieceKind promotionType = PieceKind::None;
-    auto itPromotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
-    if (itPromotion != tokens.end() && pieceKind == PieceKind::Pawn) {
-        promotionType = getPieceKindFromMove(std::next(itPromotion)->value);
+    bool isEnPassant = false;
+    if (pieceKind == PieceKind::Pawn) {
+        auto itPromotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
+        if (itPromotion != tokens.end()) {
+            promotionType = getPieceKindFromMove(std::next(itPromotion)->value);
+        }
+        if (isCapture(tokens) & !board.atPosition(target)) {
+            isEnPassant = true;
+        }
     }
 
     const Position piecePosition = board.findMoveablePiece(target, pieceKind, pieceColor, originColumn, originRow);
 
     return {
-        "",
+        std::string(moveString),
         board.atPosition(piecePosition),
         isCapture(tokens) ? board.atPosition(target) : nullptr,
         piecePosition,
         target,
         false,
         promotionType,
-        false
+        isEnPassant
     };
 }
 

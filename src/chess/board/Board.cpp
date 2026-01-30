@@ -13,6 +13,7 @@
 #include "../pieces/Queen.h"
 #include "../pieces/Rook.h"
 #include "./Position.h"
+#include "../move/Interpreter.h"
 
 void Board::resetBoard() {
     for (auto & i : grid) {
@@ -100,4 +101,21 @@ Position Board::findMoveablePiece(
         throw std::invalid_argument("Multiple pieces are able to do this move");
 
     return moveablePiecesPositions[0];
+}
+
+void Board::movePiece(const Position from, const Position to) {
+    grid[to.y][to.x] = grid[from.y][from.x];
+    grid[from.y][from.x] = nullptr;
+}
+
+void Board::handleMove(const std::string& moveString) {
+    const Move move = Interpreter::parse(moveString, *this);
+
+    movePiece(move.from, move.to);
+
+    if (move.isEnPassant) {
+        grid[move.from.y][move.to.x] = nullptr;
+    }
+
+    history.pushMove(move);
 }

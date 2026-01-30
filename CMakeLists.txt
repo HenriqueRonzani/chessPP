@@ -27,4 +27,5 @@ add_executable(cchess main.cpp
         src/chess/move/Interpreter.h
         src/chess/move/Token.cpp
         src/chess/move/Token.h
+        src/chess/pieces/PieceTypes.h
 )

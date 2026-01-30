@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "../board/Position.h"
-#include "../pieces/Piece.h"
+#include "../pieces/PieceTypes.h"
 
 class Piece;
 
@@ -30,6 +30,7 @@ class MoveHistory {
     public:
     MoveHistory() = default;
     [[nodiscard]] std::optional<Move> getLastMove() const;
+    void pushMove(const Move& move);
     [[nodiscard]] PieceColor getNextMoveColor() const;
 };
 

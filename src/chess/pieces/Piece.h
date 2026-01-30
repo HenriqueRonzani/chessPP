@@ -4,25 +4,11 @@
 
 #ifndef CCHESS_PIECE_H
 #define CCHESS_PIECE_H
+#include "PieceTypes.h"
 #include "../board/Board.h"
 #include "../move/MoveHistory.h"
 
 class Board;
-
-enum class PieceKind {
-    King,
-    Queen,
-    Rook,
-    Knight,
-    Bishop,
-    Pawn,
-    None
-};
-
-enum class PieceColor {
-    black,
-    white
-};
 
 class Piece {
 protected:

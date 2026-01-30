@@ -4,6 +4,8 @@
 
 #include "MoveHistory.h"
 
+#include "../pieces/Piece.h"
+
 std::optional<Move> MoveHistory::getLastMove() const {
     if (history.empty()) return std::nullopt;
     return history.back();
@@ -14,4 +16,8 @@ PieceColor MoveHistory::getNextMoveColor() const {
     return lastMove
         ? Piece::getOpposingColor(lastMove->movedPiece->color)
         : PieceColor::white;
+}
+
+void MoveHistory::pushMove(const Move& move) {
+    history.push_back(move);
 }
