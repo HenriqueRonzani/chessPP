@@ -17,7 +17,7 @@ char Piece::toChar() const {
         case PieceKind::Pawn:   kindChar = 'p'; break;
         default:                kindChar = '-'; break;
     }
-    return color == PieceColor::white
+    return color == PieceColor::White
         ? static_cast<char>(std::toupper(static_cast<unsigned char>(kindChar)))
         : kindChar;
 }
@@ -60,7 +60,7 @@ std::vector<Position> Piece::generateMoves(const Position pos, const Board &boar
 }
 
 PieceColor Piece::getOpposingColor(const PieceColor color) {
-    return color == PieceColor::black
-     ? PieceColor::white
-     : PieceColor::black;
+    return color == PieceColor::Black
+     ? PieceColor::White
+     : PieceColor::Black;
 }

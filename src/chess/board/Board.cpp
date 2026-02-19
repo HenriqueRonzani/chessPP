@@ -23,26 +23,26 @@ void Board::resetBoard() {
         }
     }
     for (int j = 0; j < 8; j++) {
-        grid[1][j] = new Pawn(PieceColor::white);
-        grid[6][j] = new Pawn(PieceColor::black);
+        grid[1][j] = new Pawn(PieceColor::White);
+        grid[6][j] = new Pawn(PieceColor::Black);
     }
-    grid[0][0] = new Rook(PieceColor::white);
-    grid[0][1] = new Knight(PieceColor::white);
-    grid[0][2] = new Bishop(PieceColor::white);
-    grid[0][3] = new Queen(PieceColor::white);
-    grid[0][4] = new King(PieceColor::white);
-    grid[0][5] = new Bishop(PieceColor::white);
-    grid[0][6] = new Knight(PieceColor::white);
-    grid[0][7] = new Rook(PieceColor::white);
+    grid[0][0] = new Rook(PieceColor::White);
+    grid[0][1] = new Knight(PieceColor::White);
+    grid[0][2] = new Bishop(PieceColor::White);
+    grid[0][3] = new Queen(PieceColor::White);
+    grid[0][4] = new King(PieceColor::White);
+    grid[0][5] = new Bishop(PieceColor::White);
+    grid[0][6] = new Knight(PieceColor::White);
+    grid[0][7] = new Rook(PieceColor::White);
 
-    grid[7][0] = new Rook(PieceColor::black);
-    grid[7][1] = new Knight(PieceColor::black);
-    grid[7][2] = new Bishop(PieceColor::black);
-    grid[7][3] = new Queen(PieceColor::black);
-    grid[7][4] = new King(PieceColor::black);
-    grid[7][5] = new Bishop(PieceColor::black);
-    grid[7][6] = new Knight(PieceColor::black);
-    grid[7][7] = new Rook(PieceColor::black);
+    grid[7][0] = new Rook(PieceColor::Black);
+    grid[7][1] = new Knight(PieceColor::Black);
+    grid[7][2] = new Bishop(PieceColor::Black);
+    grid[7][3] = new Queen(PieceColor::Black);
+    grid[7][4] = new King(PieceColor::Black);
+    grid[7][5] = new Bishop(PieceColor::Black);
+    grid[7][6] = new Knight(PieceColor::Black);
+    grid[7][7] = new Rook(PieceColor::Black);
 }
 
 Board::Board() : grid{} {
@@ -108,6 +108,15 @@ void Board::movePiece(const Position from, const Position to) {
     grid[from.y][from.x] = nullptr;
 }
 
+void Board::handleCastle(const Move &move) {
+    const int rank = move.movedPiece->color == PieceColor::White ? 0 : 7;
+    const int rookFile = move.moveText == "O-O" ? 7 : 0;
+    const Position rookFrom = {rookFile, rank};
+    const int destinyFile = (move.from.x + move.to.x)/2;
+    const Position rookTo = {destinyFile, rank};
+    movePiece(rookFrom, rookTo);
+}
+
 void Board::handleMove(const std::string& moveString) {
     const Move move = Interpreter::parse(moveString, *this);
 
@@ -115,6 +124,10 @@ void Board::handleMove(const std::string& moveString) {
 
     if (move.isEnPassant) {
         grid[move.from.y][move.to.x] = nullptr;
+    }
+
+    if (move.isCastling) {
+        handleCastle(move);
     }
 
     history.pushMove(move);

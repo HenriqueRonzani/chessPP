@@ -32,6 +32,7 @@ class MoveHistory {
     [[nodiscard]] std::optional<Move> getLastMove() const;
     void pushMove(const Move& move);
     [[nodiscard]] PieceColor getNextMoveColor() const;
+    bool pieceHasMoved (const Piece* piece) const;
 };
 
 

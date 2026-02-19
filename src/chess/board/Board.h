@@ -21,6 +21,7 @@ public:
     [[nodiscard]] std::string toString() const;
     [[nodiscard]] Position findMoveablePiece (Position target, PieceKind kind, PieceColor color, int pieceColumn = -1, int pieceRow = -1) const;
     void movePiece(Position from, Position to);
+    void handleCastle(const Move& move);
     void handleMove(const std::string& moveString);
 };
 

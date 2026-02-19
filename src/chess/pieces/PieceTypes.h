@@ -16,8 +16,8 @@ enum class PieceKind {
 };
 
 enum class PieceColor {
-    white,
-    black
+    White,
+    Black
 };
 
 #endif //CCHESS_PIECETYPES_H

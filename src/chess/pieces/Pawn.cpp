@@ -5,8 +5,8 @@
 #include "Pawn.h"
 
 std::vector<Position> Pawn::generateMoves(const Position pos, const Board& board) const {
-    const int movementDirection = color == PieceColor::white ? 1 : -1;
-    const int startRow = color == PieceColor::white ? 1 : 6;
+    const int movementDirection = color == PieceColor::White ? 1 : -1;
+    const int startRow = color == PieceColor::White ? 1 : 6;
 
     std::vector<Position> possibleMoves;
 
