@@ -10,23 +10,17 @@
 #include "./MoveHistory.h"
 #include <stdexcept>
 
-constexpr std::string allowedPieces = "KQRBN";
-constexpr std::string allowedColumns = "abcdefgh";
-constexpr std::string allowedRanks = "12345678";
-constexpr std::string allowedActions = "+#=";
-constexpr std::string castleCharacters = "O-";
-const std::string allowedChars = allowedPieces + allowedColumns + allowedRanks + allowedActions + castleCharacters;
 constexpr Position whiteKingStart = { 4, 0 };
 constexpr Position blackKingStart = { 4, 7 };
 
 Move Interpreter::parse(const std::string_view &moveString, const Board& board) {
-    std::vector<Token> tokens;
-    for (const char character : moveString) tokens.emplace_back(character);
-
     const PieceColor pieceColor = board.history.getNextMoveColor();
 
     if (moveString == "O-O" || moveString == "O-O-O")
         return handleCastling(pieceColor, board, moveString);
+
+    std::vector<Token> tokens;
+    for (const char character : moveString) tokens.emplace_back(character);
 
     return resolveMove(tokens, pieceColor, board, moveString);
 }
