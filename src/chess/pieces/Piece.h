@@ -16,7 +16,9 @@ protected:
 public:
     PieceColor color;
     PieceKind kind;
-    Piece(const PieceKind k, const PieceColor c) : color(c), kind(k) {} ;
+    Piece(const PieceKind k, const PieceColor c) : color(c), kind(k) {}
+
+    static Piece* create(PieceKind pieceKind, PieceColor color);
 
     [[nodiscard]] char toChar() const;
     bool isEnemy(const Piece* piece) const;

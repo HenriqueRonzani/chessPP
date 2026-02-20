@@ -22,7 +22,7 @@ int main() {
             if (moveString == "quit") break;
             board.handleMove(moveString);
         } catch (std::invalid_argument& e) {
-            std::cout << "Type 'quit' to exit" << e.what() << std:: endl;
+            std::cout << e.what() << std:: endl;
         }
     }
     return 0;

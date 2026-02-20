@@ -5,6 +5,14 @@
 #include "Piece.h"
 
 #include <algorithm>
+#include <stdexcept>
+
+#include "Bishop.h"
+#include "King.h"
+#include "Knight.h"
+#include "Pawn.h"
+#include "Queen.h"
+#include "Rook.h"
 
 char Piece::toChar() const {
     char kindChar;
@@ -63,4 +71,16 @@ PieceColor Piece::getOpposingColor(const PieceColor color) {
     return color == PieceColor::Black
      ? PieceColor::White
      : PieceColor::Black;
+}
+
+Piece *Piece::create(const PieceKind pieceKind, const PieceColor color) {
+    switch (pieceKind) {
+        case PieceKind::Pawn: return new Pawn(color);
+        case PieceKind::Rook: return new Rook(color);
+        case PieceKind::Knight: return new Knight(color);
+        case PieceKind::Bishop: return new Bishop(color);
+        case PieceKind::King: return new King(color);
+        case PieceKind::Queen: return new Queen(color);
+        default: throw std::invalid_argument("Invalid Promotion");
+    }
 }

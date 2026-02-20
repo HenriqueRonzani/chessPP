@@ -130,5 +130,10 @@ void Board::handleMove(const std::string& moveString) {
         handleCastle(move);
     }
 
+    if (move.promotionType != PieceKind::None) {
+        Piece* promoted = Piece::create(move.promotionType, move.movedPiece->color);
+        grid[move.to.y][move.to.x] = promoted;
+    }
+
     history.pushMove(move);
 }

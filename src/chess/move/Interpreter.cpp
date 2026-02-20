@@ -64,6 +64,9 @@ Move Interpreter::resolveMove(std::vector<Token>& tokens, const PieceColor piece
     const auto [isEnPassant, promotionType, enPassantVictim] = resolvePawnMove(tokens, target, fromPosition, board);
     Piece* capturedPiece = isEnPassant ? enPassantVictim : board.atPosition(target);
 
+    if (promotionType == PieceKind::None && (target.y == 0 || target.y == 7) && pieceKind == PieceKind::Pawn)
+        throw std::invalid_argument("Invalid Promotion Type");e4
+
     return {
         .moveText = std::string(moveString),
         .movedPiece = board.atPosition(fromPosition),
