@@ -65,7 +65,7 @@ Move Interpreter::resolveMove(std::vector<Token>& tokens, const PieceColor piece
     Piece* capturedPiece = isEnPassant ? enPassantVictim : board.atPosition(target);
 
     if (promotionType == PieceKind::None && (target.y == 0 || target.y == 7) && pieceKind == PieceKind::Pawn)
-        throw std::invalid_argument("Invalid Promotion Type");e4
+        throw std::invalid_argument("Invalid Promotion Type");
 
     return {
         .moveText = std::string(moveString),
