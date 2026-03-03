@@ -13,16 +13,25 @@
 constexpr Position whiteKingStart = { 4, 0 };
 constexpr Position blackKingStart = { 4, 7 };
 
-Move Interpreter::parse(const std::string_view &moveString, const Board& board) {
+Move Interpreter::parse(const std::string_view &moveString, Board& board) {
     const PieceColor pieceColor = board.history.getNextMoveColor();
 
-    if (moveString == "O-O" || moveString == "O-O-O")
-        return handleCastling(pieceColor, board, moveString);
+    if (moveString == "O-O" || moveString == "O-O-O") {
+        const Move move = handleCastling(pieceColor, board, moveString);
+
+        if (!board.isMoveLegal(move))
+            throw std::invalid_argument("Ilegal move");
+        return move;
+    }
 
     std::vector<Token> tokens;
     for (const char character : moveString) tokens.emplace_back(character);
 
-    return resolveMove(tokens, pieceColor, board, moveString);
+    const Move move = resolveMove(tokens, pieceColor, board, moveString);
+
+    if (!board.isMoveLegal(move))
+        throw std::invalid_argument("Ilegal move");
+    return move;
 }
 
 Move Interpreter::handleCastling(const PieceColor pieceColor, const Board &board, const std::string_view moveString) {
