@@ -125,9 +125,19 @@ void Board::handleCastle(const Move &move) {
 
 void Board::handleMove(const std::string& moveString) {
     const Move move = Interpreter::parse(moveString, *this);
-
+    if (move.movedPiece->kind == PieceKind::King) {
+        movePiece(move.from, move.to);
+    } else {
     movePiece(move.from, move.to);
+    }
 
+    if (move.movedPiece->kind == PieceKind::King) {
+        if (move.movedPiece->color == PieceColor::White) {
+            whiteKingPos = move.to;
+        } else {
+            blackKingPos = move.to;
+        }
+    }
     if (move.isEnPassant) {
         grid[move.from.y][move.to.x] = nullptr;
     }
@@ -212,7 +222,7 @@ bool Board::isMoveLegal(const Position from, const Position to) {
         && to.x != from.x
         && !pieceTo;
     const bool isCastling = pieceFrom->kind == PieceKind::King
-        && std::abs(to.x - to.y) == 2;
+        && std::abs(to.x - from.x) == 2;
 
     Piece *enPassantPiece = atPosition({to.x, from.y});
 
