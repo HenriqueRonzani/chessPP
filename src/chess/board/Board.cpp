@@ -16,6 +16,7 @@
 #include "../pieces/Rook.h"
 #include "./Position.h"
 #include "../move/Interpreter.h"
+#include <cmath>
 
 void Board::resetBoard() {
     for (auto & i : grid) {
@@ -203,21 +204,27 @@ bool Board::isKingAttacked(const PieceColor pieceColor) const {
     return isSquareAttacked(kingPos, pieceColor);
 }
 
-bool Board::isMoveLegal(const Move& move) {
-    Piece* pieceFrom = atPosition(move.from);
-    Piece* pieceTo = atPosition(move.to);
+bool Board::isMoveLegal(const Position from, const Position to) {
+    Piece* pieceFrom = atPosition(from);
+    Piece* pieceTo = atPosition(to);
 
-    Piece *enPassantPiece = atPosition({move.to.x, move.from.y});
+    const bool isEnPassant = pieceFrom->kind == PieceKind::Pawn
+        && to.x != from.x
+        && !pieceTo;
+    const bool isCastling = pieceFrom->kind == PieceKind::King
+        && std::abs(to.x - to.y) == 2;
+
+    Piece *enPassantPiece = atPosition({to.x, from.y});
 
     // Simulate movement
-    grid[move.to.y][move.to.x] = pieceFrom;
-    grid[move.from.y][move.from.x] = nullptr;
-    if (move.isEnPassant) grid[move.from.y][move.to.x] = nullptr;
-    if (move.isCastling) {
-        const int rank = move.movedPiece->color == PieceColor::White ? 0 : 7;
-        const int rookFile = move.moveText == "O-O" ? 7 : 0;
+    grid[to.y][to.x] = pieceFrom;
+    grid[from.y][from.x] = nullptr;
+    if (isEnPassant) grid[from.y][to.x] = nullptr;
+    if (isCastling) {
+        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
+        const int rookFile = from.x < to.x ? 7 : 0;
         const Position rookFrom = {rookFile, rank};
-        const Position rookTo = {(move.from.x + move.to.x)/2, rank};
+        const Position rookTo = {(from.x + to.x)/2, rank};
 
         grid[rookTo.y][rookTo.x] = grid[rookFrom.y][rookFrom.x];
         grid[rookFrom.y][rookFrom.x] = nullptr;
@@ -226,18 +233,37 @@ bool Board::isMoveLegal(const Move& move) {
     const bool isInCheck = isKingAttacked(pieceFrom->color);
 
     // Undo simulation
-    grid[move.to.y][move.to.x] = pieceTo;
-    grid[move.from.y][move.from.x] = pieceFrom;
-    if (move.isEnPassant) grid[move.from.y][move.to.x] = enPassantPiece;
-    if (move.isCastling) {
-        const int rank = move.movedPiece->color == PieceColor::White ? 0 : 7;
-        const int rookFile = move.moveText == "O-O" ? 7 : 0;
+    grid[to.y][to.x] = pieceTo;
+    grid[from.y][from.x] = pieceFrom;
+    if (isEnPassant) grid[from.y][to.x] = enPassantPiece;
+    if (isCastling) {
+        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
+        const int rookFile = from.x < to.x ? 7 : 0;
         const Position rookFrom = {rookFile, rank};
-        const Position rookTo = {(move.from.x + move.to.x)/2, rank};
+        const Position rookTo = {(from.x + to.x)/2, rank};
 
         grid[rookFrom.y][rookFrom.x] = grid[rookTo.y][rookTo.x];
         grid[rookTo.y][rookTo.x] = nullptr;
     }
 
     return !isInCheck;
+}
+
+void Board::filterLegalMoves(Position from, std::vector<Position>& pseudoLegalPositions) {
+    std::erase_if(pseudoLegalPositions, [from, this](const Position& pos) {
+        return !isMoveLegal(from, pos);
+    });
+}
+
+bool Board::hasLegalMoves(const PieceColor pieceColor) const {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (const Piece* piece = grid[i][j];
+                piece && piece->color == pieceColor) {
+                std::vector<Position> positions = piece->generateMoves({j, i}, *this);
+                if (!positions.empty()) return true;
+            }
+        }
+    }
+    return false;
 }

@@ -20,6 +20,7 @@ class Board {
     void movePiece(Position from, Position to);
     [[nodiscard]] bool scanForAttackers(Position pos, PieceColor pieceColor, const std::vector<Position> &moveDirections, std::initializer_list<PieceKind> kinds,
         int maxSteps = 8) const;
+    void filterLegalMoves(Position from, std::vector<Position>& pseudoLegalPositions);
 public:
     Board();
     MoveHistory history;
@@ -31,7 +32,8 @@ public:
 
     [[nodiscard]] bool isSquareAttacked(const Position& position, PieceColor pieceColor) const;
     [[nodiscard]] bool isKingAttacked(PieceColor pieceColor) const;
-    bool isMoveLegal(const Move& move);
+    bool isMoveLegal(Position from, Position to);
+    [[nodiscard]] bool hasLegalMoves(PieceColor pieceColor) const;
 };
 
 

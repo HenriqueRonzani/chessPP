@@ -19,7 +19,7 @@ Move Interpreter::parse(const std::string_view &moveString, Board& board) {
     if (moveString == "O-O" || moveString == "O-O-O") {
         const Move move = handleCastling(pieceColor, board, moveString);
 
-        if (!board.isMoveLegal(move))
+        if (!board.isMoveLegal(move.from, move.to))
             throw std::invalid_argument("Ilegal move");
         return move;
     }
@@ -29,7 +29,7 @@ Move Interpreter::parse(const std::string_view &moveString, Board& board) {
 
     const Move move = resolveMove(tokens, pieceColor, board, moveString);
 
-    if (!board.isMoveLegal(move))
+    if (!board.isMoveLegal(move.from, move.to))
         throw std::invalid_argument("Ilegal move");
     return move;
 }
