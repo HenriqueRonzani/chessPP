@@ -13,8 +13,8 @@ class Piece;
 
 class Board {
     Piece* grid[8][8];
-    Position whiteKingPos = {0, 6};
-    Position blackKingPos = {7, 6};
+    Position whiteKingPos = {0, 4};
+    Position blackKingPos = {7, 4};
 
     void handleCastle(const Move& move);
     void movePiece(Position from, Position to);
@@ -28,12 +28,12 @@ public:
     void handleMove(const std::string& moveString);
     [[nodiscard]] std::string toString() const;
     [[nodiscard]] Piece* atPosition(Position position) const;
-    [[nodiscard]] Position findMoveablePiece (Position target, PieceKind kind, PieceColor color, int pieceColumn = -1, int pieceRow = -1) const;
+    [[nodiscard]] Position findMoveablePiece(Position target, PieceKind kind, PieceColor color, int pieceColumn = -1, int pieceRow = -1) const;
 
     [[nodiscard]] bool isSquareAttacked(const Position& position, PieceColor pieceColor) const;
     [[nodiscard]] bool isKingAttacked(PieceColor pieceColor) const;
     bool isMoveLegal(Position from, Position to);
-    [[nodiscard]] bool hasLegalMoves(PieceColor pieceColor) const;
+    [[nodiscard]] bool hasLegalMoves(PieceColor pieceColor);
 };
 
 

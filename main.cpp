@@ -1,11 +1,5 @@
-
-#include <format>
 #include <iostream>
 #include "src/chess/board/Board.h"
-
-void clearScreen() {
-    std::cout << "\033[2J\033[1;1H";
-}
 
 int main() {
     Board board;
@@ -13,7 +7,9 @@ int main() {
     while (true) {
         const PieceColor color = board.history.getNextMoveColor();
 
-        clearScreen();
+        std::cout << "Next to play: " << PieceTypeHelper::getColorName(color) << std::endl;
+        std::cout << board.toString() << std::endl;
+
         if (!board.hasLegalMoves(color)) {
             std::cout << "The game has ended. ";
             if (board.isKingAttacked(color))
@@ -24,8 +20,6 @@ int main() {
             break;
         }
 
-        std::cout << "Next to play: " << PieceTypeHelper::getColorName(color) << std::endl;
-        std::cout << board.toString() << std::endl;
         std::cout << "Type 'quit' to exit" << std:: endl;
 
         try {
