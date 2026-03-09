@@ -34,6 +34,10 @@ bool Piece::isEnemy(const Piece* piece) const {
     return piece->color != color;
 }
 
+bool Piece::isEnemy(const PieceColor &pieceColor) const {
+    return pieceColor != color;
+}
+
 bool Piece::isValidMove(const Position from, Position to, const Board& board) const {
     const std::vector<Position> validMoves = generateMoves(from, board);
     return std::ranges::any_of(validMoves, [&](const auto& move) {

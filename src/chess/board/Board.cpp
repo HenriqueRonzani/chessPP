@@ -4,6 +4,8 @@
 
 #include "Board.h"
 
+#include <algorithm>
+#include <set>
 #include <stdexcept>
 
 #include "../pieces/Bishop.h"
@@ -14,6 +16,7 @@
 #include "../pieces/Rook.h"
 #include "./Position.h"
 #include "../move/Interpreter.h"
+#include <cmath>
 
 void Board::resetBoard() {
     for (auto & i : grid) {
@@ -43,6 +46,9 @@ void Board::resetBoard() {
     grid[7][5] = new Bishop(PieceColor::Black);
     grid[7][6] = new Knight(PieceColor::Black);
     grid[7][7] = new Rook(PieceColor::Black);
+
+    whiteKingPos = { 4, 0 };
+    blackKingPos = { 4, 7 };
 }
 
 Board::Board() : grid{} {
@@ -119,9 +125,19 @@ void Board::handleCastle(const Move &move) {
 
 void Board::handleMove(const std::string& moveString) {
     const Move move = Interpreter::parse(moveString, *this);
-
+    if (move.movedPiece->kind == PieceKind::King) {
+        movePiece(move.from, move.to);
+    } else {
     movePiece(move.from, move.to);
+    }
 
+    if (move.movedPiece->kind == PieceKind::King) {
+        if (move.movedPiece->color == PieceColor::White) {
+            whiteKingPos = move.to;
+        } else {
+            blackKingPos = move.to;
+        }
+    }
     if (move.isEnPassant) {
         grid[move.from.y][move.to.x] = nullptr;
     }
@@ -136,4 +152,140 @@ void Board::handleMove(const std::string& moveString) {
     }
 
     history.pushMove(move);
+}
+
+bool Board::scanForAttackers(const Position pos, const PieceColor pieceColor, const std::vector<Position> &moveDirections, const std::initializer_list<PieceKind> kinds, const int maxSteps) const {
+    for (const Position& dir : moveDirections) {
+        for (int i = 1; i <= maxSteps; i++) {
+            const Position current = { pos.x + dir.x * i, pos.y + dir.y * i };
+            if (!current.isValid()) break;
+
+            if (const Piece* pieceAtPosition = atPosition(current)) {
+                if (pieceAtPosition->isEnemy(pieceColor)) {
+                    for (const auto k : kinds)
+                        if (pieceAtPosition->kind == k)
+                            return true;
+                }
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Board::isSquareAttacked(const Position &position, const PieceColor pieceColor) const {
+    static const std::vector<Position> diagDir = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
+    static const std::vector<Position> ortoDir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    static const std::vector<Position> knightDirections = {
+        {1, 2}, {2, 1}, {2, -1}, {1, -2},
+        {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}
+    };
+
+    if (scanForAttackers(position, pieceColor, diagDir, {PieceKind::Bishop, PieceKind::Queen}))
+        return true;
+    if (scanForAttackers(position, pieceColor, ortoDir, {PieceKind::Rook, PieceKind::Queen}))
+        return true;
+    if (scanForAttackers(position, pieceColor, knightDirections, {PieceKind::Knight}, 1))
+        return true;
+    if (scanForAttackers(position, pieceColor, diagDir, {PieceKind::King}, 1))
+        return true;
+    if (scanForAttackers(position, pieceColor, ortoDir, {PieceKind::King}, 1))
+        return true;
+
+    const int enemyPawnDirection = pieceColor == PieceColor::White ? 1 : -1;
+
+    return std::ranges::any_of(std::array{ 1, -1 }, [&](const int xShift) {
+        const Position pawnPos = { position.x + xShift, position.y + enemyPawnDirection};
+        if (pawnPos.isValid()) {
+            const Piece* piece = atPosition(pawnPos);
+            if (piece != nullptr && piece->isEnemy(pieceColor) && piece->kind == PieceKind::Pawn)
+                return true;
+        }
+        return false;
+    });
+}
+
+bool Board::isKingAttacked(const PieceColor pieceColor) const {
+    const Position kingPos = pieceColor == PieceColor::White
+        ? whiteKingPos
+        : blackKingPos;
+
+    return isSquareAttacked(kingPos, pieceColor);
+}
+
+bool Board::isMoveLegal(const Position from, const Position to) {
+    Piece* pieceFrom = atPosition(from);
+    Piece* pieceTo = atPosition(to);
+    Position currentKingPos = pieceFrom->color == PieceColor::White
+        ? whiteKingPos
+        : blackKingPos;
+
+    const bool isEnPassant = pieceFrom->kind == PieceKind::Pawn
+        && to.x != from.x
+        && !pieceTo;
+    const bool isCastling = pieceFrom->kind == PieceKind::King
+        && std::abs(to.x - from.x) == 2;
+
+    Piece *enPassantPiece = atPosition({to.x, from.y});
+
+    // Simulate movement
+    grid[to.y][to.x] = pieceFrom;
+    grid[from.y][from.x] = nullptr;
+    if (isEnPassant) grid[from.y][to.x] = nullptr;
+    if (isCastling) {
+        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
+        const int rookFile = from.x < to.x ? 7 : 0;
+        const Position rookFrom = {rookFile, rank};
+        const Position rookTo = {(from.x + to.x)/2, rank};
+
+        grid[rookTo.y][rookTo.x] = grid[rookFrom.y][rookFrom.x];
+        grid[rookFrom.y][rookFrom.x] = nullptr;
+    }
+    if (pieceFrom->kind == PieceKind::King) {
+        if (pieceFrom->color == PieceColor::White) whiteKingPos = to;
+        else blackKingPos = to;
+    }
+
+    const bool isInCheck = isKingAttacked(pieceFrom->color);
+
+    // Undo simulation
+    grid[to.y][to.x] = pieceTo;
+    grid[from.y][from.x] = pieceFrom;
+    if (isEnPassant) grid[from.y][to.x] = enPassantPiece;
+    if (isCastling) {
+        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
+        const int rookFile = from.x < to.x ? 7 : 0;
+        const Position rookFrom = {rookFile, rank};
+        const Position rookTo = {(from.x + to.x)/2, rank};
+
+        grid[rookFrom.y][rookFrom.x] = grid[rookTo.y][rookTo.x];
+        grid[rookTo.y][rookTo.x] = nullptr;
+    }
+    if (pieceFrom->kind == PieceKind::King) {
+        if (pieceFrom->color == PieceColor::White) whiteKingPos = currentKingPos;
+        else blackKingPos = currentKingPos;
+    }
+
+    return !isInCheck;
+}
+
+void Board::filterLegalMoves(Position from, std::vector<Position>& pseudoLegalPositions) {
+    std::erase_if(pseudoLegalPositions, [from, this](const Position& pos) {
+        return !isMoveLegal(from, pos);
+    });
+}
+
+bool Board::hasLegalMoves(const PieceColor pieceColor) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (const Piece* piece = grid[i][j];
+                piece && piece->color == pieceColor) {
+                std::vector<Position> positions = piece->generateMoves({j, i}, *this);
+                filterLegalMoves({j, i}, positions);
+                if (!positions.empty()) return true;
+            }
+        }
+    }
+    return false;
 }

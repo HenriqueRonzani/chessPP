@@ -21,7 +21,8 @@ public:
     static Piece* create(PieceKind pieceKind, PieceColor color);
 
     [[nodiscard]] char toChar() const;
-    bool isEnemy(const Piece* piece) const;
+    [[nodiscard]] bool isEnemy(const Piece* piece) const;
+    [[nodiscard]] bool isEnemy(const PieceColor& pieceColor) const;
     virtual ~Piece() = default;
     [[nodiscard]] virtual bool isValidMove(Position from, Position to, const Board& board) const;
     [[nodiscard]] virtual std::vector<Position> generateMoves(Position pos, const Board& board) const = 0;

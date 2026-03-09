@@ -37,7 +37,7 @@ class Interpreter {
     static bool isCapture(const std::vector<Token>& tokens);
 
 public:
-    static Move parse(const std::string_view &moveString, const Board& board);
+    static Move parse(const std::string_view &moveString, Board &board);
 };
 
 
