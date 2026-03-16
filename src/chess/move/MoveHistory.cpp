@@ -8,24 +8,17 @@
 
 #include "../pieces/Piece.h"
 
-std::optional<Move> MoveHistory::getLastMove() const {
+std::optional<Move> MoveHistory::get_last_move() const {
     if (history.empty()) return std::nullopt;
     return history.back();
 }
 
-PieceColor MoveHistory::getNextMoveColor() const {
-    const std::optional<Move> lastMove = getLastMove();
-    return lastMove
-        ? Piece::getOpposingColor(lastMove->movedPiece->color)
-        : PieceColor::White;
-}
-
-void MoveHistory::pushMove(const Move& move) {
+void MoveHistory::push_move(const Move& move) {
     history.push_back(move);
 }
 
-bool MoveHistory::pieceHasMoved(const Piece *piece) const {
+bool MoveHistory::piece_has_moved(const Piece *piece) const {
     return std::ranges::any_of(history, [&](const Move& move) {
-        return move.movedPiece == piece;
+        return move.moved_piece == piece;
     });
 }

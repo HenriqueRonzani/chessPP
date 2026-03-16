@@ -18,7 +18,7 @@
 #include "../move/Interpreter.h"
 #include <cmath>
 
-void Board::resetBoard() {
+void Board::reset_board() {
     for (auto & i : grid) {
         for (auto & j : i) {
             delete j;
@@ -47,27 +47,27 @@ void Board::resetBoard() {
     grid[7][6] = new Knight(PieceColor::Black);
     grid[7][7] = new Rook(PieceColor::Black);
 
-    whiteKingPos = { 4, 0 };
-    blackKingPos = { 4, 7 };
+    white_king_pos = white_king_start;
+    black_king_pos = black_king_start;
 }
 
 Board::Board() : grid{} {
-    resetBoard();
+    reset_board();
 }
 
-Piece* Board::atPosition(const Position position) const {
-    if (position.isValid())
+Piece* Board::piece_at_position(const Position position) const {
+    if (position.is_valid())
         return grid[position.y][position.x];
     return nullptr;
 }
 
-std::string Board::toString() const {
+std::string Board::to_string() const {
     std::string boardString;
     for (int i = 7; i >= 0; i--) {
         boardString += std::to_string(i) + " ";
         for (int j = 0; j < 8; j++) {
             if (const Piece* piece = grid[i][j]; piece != nullptr)
-                boardString += piece->toChar();
+                boardString += piece->to_char();
             else
                 boardString += "-";
             boardString += " ";
@@ -77,93 +77,88 @@ std::string Board::toString() const {
     return boardString;
 }
 
-Position Board::findMoveablePiece(
+Position Board::find_moveable_to_target(
     const Position target,
     const PieceKind kind,
     const PieceColor color,
-    const int pieceColumn,
-    const int pieceRow
+    const int piece_column,
+    const int piece_row
     ) const {
-    std::vector<Position> moveablePiecesPositions;
+    std::vector<Position> moveable_pieces_positions;
 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             const Piece* piece = grid[j][i];
-            if (!piece || piece->kind != kind || piece->color != color) continue;
+            if (!piece || piece->get_kind() != kind || piece->get_color() != color) continue;
 
-            if (pieceColumn != -1 && pieceColumn != i) continue;
-            if (pieceRow != -1 && pieceRow != j) continue;
+            if (piece_column != -1 && piece_column != i) continue;
+            if (piece_row != -1 && piece_row != j) continue;
 
-            if (piece->isValidMove({i, j}, target, *this)) {
-                moveablePiecesPositions.emplace_back(i, j);
+            if (piece->is_movement_pseudo_legal({i, j}, target, *this)) {
+                moveable_pieces_positions.emplace_back(i, j);
             }
         }
     }
 
-    if (moveablePiecesPositions.empty())
+    if (moveable_pieces_positions.empty())
         throw std::invalid_argument("No pieces are able to do this move");
 
-    if (moveablePiecesPositions.size() > 1)
+    if (moveable_pieces_positions.size() > 1)
         throw std::invalid_argument("Multiple pieces are able to do this move");
 
-    return moveablePiecesPositions[0];
+    return moveable_pieces_positions[0];
 }
 
-void Board::movePiece(const Position from, const Position to) {
+void Board::move_piece(const Position from, const Position to) {
     grid[to.y][to.x] = grid[from.y][from.x];
     grid[from.y][from.x] = nullptr;
 }
 
-void Board::handleCastle(const Move &move) {
-    const int rank = move.movedPiece->color == PieceColor::White ? 0 : 7;
-    const int rookFile = move.moveText == "O-O" ? 7 : 0;
-    const Position rookFrom = {rookFile, rank};
-    const int destinyFile = (move.from.x + move.to.x)/2;
-    const Position rookTo = {destinyFile, rank};
-    movePiece(rookFrom, rookTo);
+void Board::handle_castle(const Move &move) {
+    const int rank = move.moved_piece->get_color() == PieceColor::White ? 0 : 7;
+    const int rook_file = move.move_string == "O-O" ? 7 : 0;
+    const Position rook_from = {rook_file, rank};
+    const int destiny_file = (move.moved_from_position.x + move.moved_to_position.x)/2;
+    const Position rook_to = {destiny_file, rank};
+    move_piece(rook_from, rook_to);
 }
 
-void Board::handleMove(const std::string& moveString) {
-    const Move move = Interpreter::parse(moveString, *this);
-    if (move.movedPiece->kind == PieceKind::King) {
-        movePiece(move.from, move.to);
-    } else {
-    movePiece(move.from, move.to);
-    }
+void Board::handle_move(const Move& move, const PieceColor moving_color) {
+    move_piece(move.moved_from_position, move.moved_to_position);
 
-    if (move.movedPiece->kind == PieceKind::King) {
-        if (move.movedPiece->color == PieceColor::White) {
-            whiteKingPos = move.to;
+    if (move.moved_piece->get_kind() == PieceKind::King) {
+        if (move.moved_piece->get_color() == PieceColor::White) {
+            white_king_pos = move.moved_to_position;
         } else {
-            blackKingPos = move.to;
+            black_king_pos = move.moved_to_position;
         }
     }
-    if (move.isEnPassant) {
-        grid[move.from.y][move.to.x] = nullptr;
+    if (move.is_en_passant) {
+        grid[move.moved_from_position.y][move.moved_to_position.x] = nullptr;
     }
 
-    if (move.isCastling) {
-        handleCastle(move);
+    if (move.is_castle) {
+        handle_castle(move);
     }
 
-    if (move.promotionType != PieceKind::None) {
-        Piece* promoted = Piece::create(move.promotionType, move.movedPiece->color);
-        grid[move.to.y][move.to.x] = promoted;
+    if (move.promotion_type != PieceKind::None) {
+        Piece* promoted = Piece::create(move.promotion_type, move.moved_piece->get_color());
+        grid[move.moved_to_position.y][move.moved_to_position.x] = promoted;
     }
 
-    history.pushMove(move);
+    history.push_move(move);
 }
 
-bool Board::scanForAttackers(const Position pos, const PieceColor pieceColor, const std::vector<Position> &moveDirections, const std::initializer_list<PieceKind> kinds, const int maxSteps) const {
-    for (const Position& dir : moveDirections) {
-        for (int i = 1; i <= maxSteps; i++) {
+bool Board::scan_for_attackers(const Position pos, const PieceColor piece_color, const std::vector<Position> &move_directions, const std::initializer_list<PieceKind> kinds, const int max_steps) const {
+    for (const Position& dir : move_directions) {
+        for (int i = 1; i <= max_steps; i++) {
             const Position current = { pos.x + dir.x * i, pos.y + dir.y * i };
-            if (!current.isValid()) break;
+            if (!current.is_valid()) break;
 
-            if (const Piece* pieceAtPosition = atPosition(current)) {
-                if (pieceAtPosition->isEnemy(pieceColor)) {
+            if (const Piece* pieceAtPosition = piece_at_position(current)) {
+                if (pieceAtPosition->is_enemy(piece_color)) {
                     for (const auto k : kinds)
-                        if (pieceAtPosition->kind == k)
+                        if (pieceAtPosition->get_kind() == k)
                             return true;
                 }
                 break;
@@ -174,7 +169,7 @@ bool Board::scanForAttackers(const Position pos, const PieceColor pieceColor, co
     return false;
 }
 
-bool Board::isSquareAttacked(const Position &position, const PieceColor pieceColor) const {
+bool Board::is_square_attacked(const Position &pos, const PieceColor piece_color) const {
     static const std::vector<Position> diagDir = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
     static const std::vector<Position> ortoDir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     static const std::vector<Position> knightDirections = {
@@ -182,107 +177,112 @@ bool Board::isSquareAttacked(const Position &position, const PieceColor pieceCol
         {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}
     };
 
-    if (scanForAttackers(position, pieceColor, diagDir, {PieceKind::Bishop, PieceKind::Queen}))
+    if (scan_for_attackers(pos, piece_color, diagDir, {PieceKind::Bishop, PieceKind::Queen}))
         return true;
-    if (scanForAttackers(position, pieceColor, ortoDir, {PieceKind::Rook, PieceKind::Queen}))
+    if (scan_for_attackers(pos, piece_color, ortoDir, {PieceKind::Rook, PieceKind::Queen}))
         return true;
-    if (scanForAttackers(position, pieceColor, knightDirections, {PieceKind::Knight}, 1))
+    if (scan_for_attackers(pos, piece_color, knightDirections, {PieceKind::Knight}, 1))
         return true;
-    if (scanForAttackers(position, pieceColor, diagDir, {PieceKind::King}, 1))
+    if (scan_for_attackers(pos, piece_color, diagDir, {PieceKind::King}, 1))
         return true;
-    if (scanForAttackers(position, pieceColor, ortoDir, {PieceKind::King}, 1))
+    if (scan_for_attackers(pos, piece_color, ortoDir, {PieceKind::King}, 1))
         return true;
 
-    const int enemyPawnDirection = pieceColor == PieceColor::White ? 1 : -1;
+    const int enemyPawnDirection = piece_color == PieceColor::White ? 1 : -1;
 
     return std::ranges::any_of(std::array{ 1, -1 }, [&](const int xShift) {
-        const Position pawnPos = { position.x + xShift, position.y + enemyPawnDirection};
-        if (pawnPos.isValid()) {
-            const Piece* piece = atPosition(pawnPos);
-            if (piece != nullptr && piece->isEnemy(pieceColor) && piece->kind == PieceKind::Pawn)
+        const Position pawnPos = { pos.x + xShift, pos.y + enemyPawnDirection};
+        if (pawnPos.is_valid()) {
+            const Piece* piece = piece_at_position(pawnPos);
+            if (piece != nullptr && piece->is_enemy(piece_color) && piece->get_kind() == PieceKind::Pawn)
                 return true;
         }
         return false;
     });
 }
 
-bool Board::isKingAttacked(const PieceColor pieceColor) const {
-    const Position kingPos = pieceColor == PieceColor::White
-        ? whiteKingPos
-        : blackKingPos;
-
-    return isSquareAttacked(kingPos, pieceColor);
+bool Board::is_square_free(const Position &pos) const {
+    return !piece_at_position(pos);
 }
 
-bool Board::isMoveLegal(const Position from, const Position to) {
-    Piece* pieceFrom = atPosition(from);
-    Piece* pieceTo = atPosition(to);
-    Position currentKingPos = pieceFrom->color == PieceColor::White
-        ? whiteKingPos
-        : blackKingPos;
+bool Board::is_square_free_and_not_attacked(const Position &pos, const PieceColor piece_color) const {
+    return is_square_free(pos) &&
+        !is_square_attacked(pos, piece_color);
+}
 
-    const bool isEnPassant = pieceFrom->kind == PieceKind::Pawn
-        && to.x != from.x
-        && !pieceTo;
-    const bool isCastling = pieceFrom->kind == PieceKind::King
-        && std::abs(to.x - from.x) == 2;
 
-    Piece *enPassantPiece = atPosition({to.x, from.y});
+bool Board::is_king_attacked(const PieceColor piece_color) const {
+    const Position kingPos = piece_color == PieceColor::White
+        ? white_king_pos
+        : black_king_pos;
+
+    return is_square_attacked(kingPos, piece_color);
+}
+
+bool Board::is_move_legal(const Position from_position, const Position to_position) {
+    Piece* piece_from = piece_at_position(from_position);
+    Piece* piece_to = piece_at_position(to_position);
+    const Position current_king_position = piece_from->get_color() == PieceColor::White
+        ? white_king_pos
+        : black_king_pos;
+
+    const bool is_en_passant = piece_from->get_kind() == PieceKind::Pawn
+        && to_position.x != from_position.x
+        && !piece_to;
+    const bool is_castling = piece_from->get_kind() == PieceKind::King
+        && std::abs(to_position.x - from_position.x) == 2;
+
+    Piece *enPassantPiece = piece_at_position({to_position.x, from_position.y});
+
+    const int rank = piece_from->get_color() == PieceColor::White ? 0 : 7;
+    const int rook_file = from_position.x < to_position.x ? 7 : 0;
+    const Position rook_from = {rook_file, rank};
+    const Position rook_to = {(from_position.x + to_position.x)/2, rank};
 
     // Simulate movement
-    grid[to.y][to.x] = pieceFrom;
-    grid[from.y][from.x] = nullptr;
-    if (isEnPassant) grid[from.y][to.x] = nullptr;
-    if (isCastling) {
-        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
-        const int rookFile = from.x < to.x ? 7 : 0;
-        const Position rookFrom = {rookFile, rank};
-        const Position rookTo = {(from.x + to.x)/2, rank};
-
-        grid[rookTo.y][rookTo.x] = grid[rookFrom.y][rookFrom.x];
-        grid[rookFrom.y][rookFrom.x] = nullptr;
+    grid[to_position.y][to_position.x] = piece_from;
+    grid[from_position.y][from_position.x] = nullptr;
+    if (is_en_passant) grid[from_position.y][to_position.x] = nullptr;
+    if (is_castling) {
+        grid[rook_to.y][rook_to.x] = grid[rook_from.y][rook_from.x];
+        grid[rook_from.y][rook_from.x] = nullptr;
     }
-    if (pieceFrom->kind == PieceKind::King) {
-        if (pieceFrom->color == PieceColor::White) whiteKingPos = to;
-        else blackKingPos = to;
+    if (piece_from->get_kind() == PieceKind::King) {
+        if (piece_from->get_color() == PieceColor::White) white_king_pos = to_position;
+        else black_king_pos = to_position;
     }
 
-    const bool isInCheck = isKingAttacked(pieceFrom->color);
+    const bool is_king_checked_after_move = is_king_attacked(piece_from->get_color());
 
     // Undo simulation
-    grid[to.y][to.x] = pieceTo;
-    grid[from.y][from.x] = pieceFrom;
-    if (isEnPassant) grid[from.y][to.x] = enPassantPiece;
-    if (isCastling) {
-        const int rank = pieceFrom->color == PieceColor::White ? 0 : 7;
-        const int rookFile = from.x < to.x ? 7 : 0;
-        const Position rookFrom = {rookFile, rank};
-        const Position rookTo = {(from.x + to.x)/2, rank};
-
-        grid[rookFrom.y][rookFrom.x] = grid[rookTo.y][rookTo.x];
-        grid[rookTo.y][rookTo.x] = nullptr;
+    grid[to_position.y][to_position.x] = piece_to;
+    grid[from_position.y][from_position.x] = piece_from;
+    if (is_en_passant) grid[from_position.y][to_position.x] = enPassantPiece;
+    if (is_castling) {
+        grid[rook_from.y][rook_from.x] = grid[rook_to.y][rook_to.x];
+        grid[rook_to.y][rook_to.x] = nullptr;
     }
-    if (pieceFrom->kind == PieceKind::King) {
-        if (pieceFrom->color == PieceColor::White) whiteKingPos = currentKingPos;
-        else blackKingPos = currentKingPos;
+    if (piece_from->get_kind() == PieceKind::King) {
+        if (piece_from->get_color() == PieceColor::White) white_king_pos = current_king_position;
+        else black_king_pos = current_king_position;
     }
 
-    return !isInCheck;
+    return !is_king_checked_after_move;
 }
 
-void Board::filterLegalMoves(Position from, std::vector<Position>& pseudoLegalPositions) {
-    std::erase_if(pseudoLegalPositions, [from, this](const Position& pos) {
-        return !isMoveLegal(from, pos);
+void Board::filter_legal_destinations(Position from, std::vector<Position>& pseudo_legal_to_positions) {
+    std::erase_if(pseudo_legal_to_positions, [from, this](const Position& pos) {
+        return !is_move_legal(from, pos);
     });
 }
 
-bool Board::hasLegalMoves(const PieceColor pieceColor) {
+bool Board::has_legal_moves(const PieceColor piece_color) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             if (const Piece* piece = grid[i][j];
-                piece && piece->color == pieceColor) {
-                std::vector<Position> positions = piece->generateMoves({j, i}, *this);
-                filterLegalMoves({j, i}, positions);
+                piece && piece->get_color() == piece_color) {
+                std::vector<Position> positions = piece->generate_pseudo_legal_moves({j, i}, *this);
+                filter_legal_destinations({j, i}, positions);
                 if (!positions.empty()) return true;
             }
         }

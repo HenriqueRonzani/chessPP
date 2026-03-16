@@ -12,22 +12,24 @@ class Board;
 
 class Piece {
 protected:
-    [[nodiscard]] std::vector<Position> generateSlidingMoves(Position pos, const Board& board, const std::vector<Position>& moveDirections, int maxSteps = 8) const;
-public:
+    [[nodiscard]] std::vector<Position> generate_sliding_moves(Position pos, const Board& board, const std::vector<Position>& move_directions, int max_steps = 8) const;
     PieceColor color;
     PieceKind kind;
+public:
     Piece(const PieceKind k, const PieceColor c) : color(c), kind(k) {}
 
-    static Piece* create(PieceKind pieceKind, PieceColor color);
-
-    [[nodiscard]] char toChar() const;
-    [[nodiscard]] bool isEnemy(const Piece* piece) const;
-    [[nodiscard]] bool isEnemy(const PieceColor& pieceColor) const;
+    static Piece* create(PieceKind piece_kind, PieceColor color);
     virtual ~Piece() = default;
-    [[nodiscard]] virtual bool isValidMove(Position from, Position to, const Board& board) const;
-    [[nodiscard]] virtual std::vector<Position> generateMoves(Position pos, const Board& board) const = 0;
 
-    static PieceColor getOpposingColor (PieceColor color);
+    [[nodiscard]] PieceColor get_color () const;
+    [[nodiscard]] PieceKind get_kind () const;
+    [[nodiscard]] char to_char() const;
+
+    [[nodiscard]] bool is_enemy(const Piece* piece) const;
+    [[nodiscard]] bool is_enemy(const PieceColor& piece_color) const;
+
+    [[nodiscard]] virtual bool is_movement_pseudo_legal(Position from, Position to, const Board& board) const;
+    [[nodiscard]] virtual std::vector<Position> generate_pseudo_legal_moves(Position pos, const Board& board) const = 0;
 };
 
 

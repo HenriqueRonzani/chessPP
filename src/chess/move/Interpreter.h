@@ -11,33 +11,28 @@
 
 using TokenIt = std::ranges::borrowed_iterator_t<std::ranges::reverse_view<std::ranges::ref_view<std::vector<Token>>>>;
 
-struct PieceOrigin {
-    const int originRow;
-    const int originColumn;
-};
-
 struct Target {
     const Position target;
-    TokenIt itTargetRow;
+    TokenIt it_target_row;
 };
 
 struct PawnMoveContext {
-    bool isEnPassant = false;
-    PieceKind promotionType = PieceKind::None;
-    Piece* enPassantVictim = nullptr;
+    bool is_en_passant = false;
+    PieceKind promotion_type = PieceKind::None;
+    Piece* en_passant_victim = nullptr;
 };
 
 class Interpreter {
-    static Move resolveMove(std::vector<Token> &tokens, PieceColor pieceColor, const Board &board, std::string_view moveString);
-    static Move handleCastling(PieceColor pieceColor, const Board &board, std::string_view moveString);
-    static Position parseDisambiguation(std::vector<Token>& tokens, const TokenIt& itTargetRow);
-    static Target parseTarget(std::vector<Token>& tokens);
-    static PawnMoveContext resolvePawnMove(std::vector<Token> &tokens, Position target, Position piecePosition, const Board &board);
-    static PieceKind getPieceKind(char p);
-    static bool isCapture(const std::vector<Token>& tokens);
+    static Move resolve_move(std::vector<Token> &tokens, PieceColor piece_color, const Board &board, std::string_view move_string);
+    static Move resolve_castle_move(PieceColor piece_color, const Board &board, std::string_view move_string);
+    static PawnMoveContext resolve_pawn_move(std::vector<Token> &tokens, Position target, Position piece_position, const Board &board);
+    static Target resolve_target(std::vector<Token> &tokens);
+    static Position resolve_disambiguation(std::vector<Token>& tokens, const TokenIt& it_target_row);
+    static PieceKind get_piece_kind_from_char(char p);
+    static bool is_capturing(const std::vector<Token>& tokens);
 
 public:
-    static Move parse(const std::string_view &moveString, Board &board);
+    static Move parse_string(const std::string_view &move_string, Board &board, PieceColor moving_color);
 };
 
 

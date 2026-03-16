@@ -19,11 +19,12 @@ enum class PieceKind {
 
 enum class PieceColor {
     White,
-    Black
+    Black,
+    None
 };
 
 namespace PieceTypeHelper {
-    static std::string getKindName(const PieceKind kind) {
+    static std::string get_kind_name(const PieceKind kind) {
         switch (kind) {
             case PieceKind::King:   return "King";
             case PieceKind::Queen:  return "Queen";
@@ -34,11 +35,18 @@ namespace PieceTypeHelper {
             default:                return "-";
         }
     }
-    static std::string getColorName(const PieceColor color) {
+    static std::string get_color_name(const PieceColor color) {
         switch (color) {
             case PieceColor::White: return "White";
             case PieceColor::Black: return "Black";
             default:                return "-";
+        }
+    }
+    static PieceColor get_opposite_color(const PieceColor color) {
+        switch (color) {
+            case PieceColor::White: return PieceColor::Black;
+            case PieceColor::Black: return PieceColor::White;
+            default:                return PieceColor::None;
         }
     }
 }

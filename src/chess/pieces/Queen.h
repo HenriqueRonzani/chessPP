@@ -11,7 +11,7 @@ class Queen : public Piece {
 public:
     explicit Queen(const PieceColor color) : Piece(PieceKind::Queen, color) {}
 
-    [[nodiscard]] std::vector<Position> generateMoves(Position pos, const Board& board) const override;
+    [[nodiscard]] std::vector<Position> generate_pseudo_legal_moves(Position pos, const Board& board) const override;
 };
 
 
