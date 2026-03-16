@@ -10,7 +10,7 @@ class Pawn : public Piece {
 public:
     explicit Pawn(const PieceColor color) : Piece(PieceKind::Pawn, color) {}
 
-    [[nodiscard]] std::vector<Position> generateMoves(Position pos, const Board& board) const override;
+    [[nodiscard]] std::vector<Position> generate_pseudo_legal_moves(Position pos, const Board& board) const override;
 };
 
 

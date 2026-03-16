@@ -13,15 +13,15 @@
 class Piece;
 
 struct Move {
-    std::string moveText;
-    const Piece* movedPiece;
-    const Piece* capturedPiece = nullptr;
-    Position from;
-    Position to;
+    std::string move_string;
+    const Piece* moved_piece;
+    const Piece* captured_piece = nullptr;
+    Position moved_from_position;
+    Position moved_to_position;
 
-    bool isCastling = false;
-    PieceKind promotionType = PieceKind::None;
-    bool isEnPassant = false;
+    bool is_castle = false;
+    bool is_en_passant = false;
+    PieceKind promotion_type = PieceKind::None;
 };
 
 class MoveHistory {
@@ -29,10 +29,9 @@ class MoveHistory {
 
     public:
     MoveHistory() = default;
-    [[nodiscard]] std::optional<Move> getLastMove() const;
-    void pushMove(const Move& move);
-    [[nodiscard]] PieceColor getNextMoveColor() const;
-    bool pieceHasMoved (const Piece* piece) const;
+    [[nodiscard]] std::optional<Move> get_last_move() const;
+    void push_move(const Move& move);
+    bool piece_has_moved (const Piece* piece) const;
 };
 
 

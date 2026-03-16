@@ -10,128 +10,127 @@
 #include "./MoveHistory.h"
 #include <stdexcept>
 
-constexpr Position whiteKingStart = { 4, 0 };
-constexpr Position blackKingStart = { 4, 7 };
+Move Interpreter::parse_string(const std::string_view &move_string, Board& board, const PieceColor moving_color) {
+    Move move;
 
-Move Interpreter::parse(const std::string_view &moveString, const Board& board) {
-    const PieceColor pieceColor = board.history.getNextMoveColor();
+    if (move_string == "O-O" || move_string == "O-O-O") {
+        move = resolve_castle_move(moving_color, board, move_string);
+    } else {
+        std::vector<Token> tokens = Token::string_to_token(move_string);
+        move = resolve_move(tokens, moving_color, board, move_string);
+    }
 
-    if (moveString == "O-O" || moveString == "O-O-O")
-        return handleCastling(pieceColor, board, moveString);
-
-    std::vector<Token> tokens;
-    for (const char character : moveString) tokens.emplace_back(character);
-
-    return resolveMove(tokens, pieceColor, board, moveString);
+    if (!board.is_move_legal(move.moved_from_position, move.moved_to_position))
+        throw std::invalid_argument("Illegal move");
+    return move;
 }
 
-Move Interpreter::handleCastling(const PieceColor pieceColor, const Board &board, const std::string_view moveString) {
-    const int moveDirection = moveString == "O-O" ? 2 : -2;
+Move Interpreter::resolve_castle_move(const PieceColor piece_color, const Board &board, const std::string_view move_string) {
+    const int castle_x_diff = move_string.length() == 3 ? 2 : -2;
 
-    const Position kingPosition = pieceColor == PieceColor::White
-        ? whiteKingStart
-        : blackKingStart;
+    const Position king_position = piece_color == PieceColor::White
+        ? Board::white_king_start
+        : Board::black_king_start;
 
-    const Position target = {kingPosition.x + moveDirection, kingPosition.y};
+    const Position target = {king_position.x + castle_x_diff, king_position.y};
 
-    const Piece* king = board.atPosition(kingPosition);
-    if (!king || king->kind != PieceKind::King || !king->isValidMove(kingPosition, target, board))
+    const Piece* king = board.piece_at_position(king_position);
+    if (!king || king->get_kind() != PieceKind::King || !king->is_movement_pseudo_legal(king_position, target, board))
         throw std::invalid_argument("Invalid castle");
 
-
     return {
-        .moveText = std::string(moveString),
-        .movedPiece = king,
-        .capturedPiece = nullptr,
-        .from = kingPosition,
-        .to = target,
-        .isCastling = true,
-        .promotionType = PieceKind::None,
-        .isEnPassant = false
+        .move_string = std::string(move_string),
+        .moved_piece = king,
+        .captured_piece = nullptr,
+        .moved_from_position = king_position,
+        .moved_to_position = target,
+        .is_castle = true,
+        .is_en_passant = false,
+        .promotion_type = PieceKind::None
     };
 }
 
-Move Interpreter::resolveMove(std::vector<Token>& tokens, const PieceColor pieceColor, const Board& board, const std::string_view moveString) {
-    const PieceKind pieceKind = tokens[0].type == TokenType::Piece
-        ? getPieceKind(tokens[0].value)
+Move Interpreter::resolve_move(std::vector<Token>& tokens, const PieceColor piece_color, const Board& board, const std::string_view move_string) {
+    const PieceKind piece_kind = tokens[0].type == TokenType::Piece
+        ? get_piece_kind_from_char(tokens[0].value)
         : PieceKind::Pawn;
 
-    const auto [target, itTargetRow] = parseTarget(tokens);
-    const auto [originColumn, originRow] = parseDisambiguation(tokens, itTargetRow);
+    const auto [target, it_target_row] = resolve_target(tokens);
+    const auto [origin_column, origin_row] = resolve_disambiguation(tokens, it_target_row);
 
-    const Position fromPosition = board.findMoveablePiece(target, pieceKind, pieceColor, originColumn, originRow);
+    const Position from_position = board.find_moveable_to_target(target, piece_kind, piece_color, origin_column, origin_row);
 
-    const auto [isEnPassant, promotionType, enPassantVictim] = resolvePawnMove(tokens, target, fromPosition, board);
-    Piece* capturedPiece = isEnPassant ? enPassantVictim : board.atPosition(target);
+    const auto [is_en_passant, promotion_type, en_passant_victim] = resolve_pawn_move(tokens, target, from_position, board);
+    Piece* capturedPiece = is_en_passant ? en_passant_victim : board.piece_at_position(target);
 
-    if (promotionType == PieceKind::None && (target.y == 0 || target.y == 7) && pieceKind == PieceKind::Pawn)
+    if (promotion_type == PieceKind::None && (target.y == 0 || target.y == 7) && piece_kind == PieceKind::Pawn)
         throw std::invalid_argument("Invalid Promotion Type");
 
     return {
-        .moveText = std::string(moveString),
-        .movedPiece = board.atPosition(fromPosition),
-        .capturedPiece = capturedPiece,
-        .from = fromPosition,
-        .to = target,
-        .isCastling = false,
-        .promotionType = promotionType,
-        .isEnPassant = isEnPassant
+        .move_string = std::string(move_string),
+        .moved_piece = board.piece_at_position(from_position),
+        .captured_piece = capturedPiece,
+        .moved_from_position = from_position,
+        .moved_to_position = target,
+        .is_castle = false,
+        .is_en_passant = is_en_passant,
+        .promotion_type = promotion_type
     };
 }
 
-Target Interpreter::parseTarget(std::vector<Token> &tokens) {
-    const auto itTargetRow = std::ranges::find_if(tokens | std::views::reverse, [](const Token& t) {
+Target Interpreter::resolve_target(std::vector<Token> &tokens) {
+    const auto it_target_row = std::ranges::find_if(tokens | std::views::reverse, [](const Token& t) {
            return t.type == TokenType::Row;
        });
 
-    if (itTargetRow == tokens.rend()) throw std::invalid_argument("Invalid move input");
-    const char rank = itTargetRow->value;
-    const char col = std::next(itTargetRow)->value;
+    if (it_target_row == tokens.rend()) throw std::invalid_argument("Invalid move input");
+    const char rank = it_target_row->value;
+    const char col = std::next(it_target_row)->value;
 
     return {
         .target = {col - 'a', rank - '1'},
-        .itTargetRow = itTargetRow
+        .it_target_row = it_target_row
     };
 }
 
-Position Interpreter::parseDisambiguation(std::vector<Token>& tokens, const TokenIt& itTargetRow) {
-    const int originStart = tokens[0].type == TokenType::Piece ? 1 : 0;
-    const auto originEnd = std::distance(tokens.begin(), itTargetRow.base()) - 2;
-    int originRow = -1, originColumn = -1;
+Position Interpreter::resolve_disambiguation(std::vector<Token>& tokens, const TokenIt& it_target_row) {
+    const int origin_start = tokens[0].type == TokenType::Piece ? 1 : 0;
+    const auto origin_end = std::distance(tokens.begin(), it_target_row.base()) - 2;
+    int origin_row = -1, origin_column = -1;
 
-    for (int i = originStart; i < originEnd; i++) {
+    for (int i = origin_start; i < origin_end; i++) {
         const auto& t = tokens[i];
-        if (t.type == TokenType::Column) originColumn = t.value - 'a';
-        else if (t.type == TokenType::Row) originRow = t.value - '1';
+        if (t.type == TokenType::Column) origin_column = t.value - 'a';
+        else if (t.type == TokenType::Row) origin_row = t.value - '1';
     }
     return {
-        originColumn,
-        originRow
+        origin_column,
+        origin_row
     };
 }
 
-PawnMoveContext Interpreter::resolvePawnMove(std::vector<Token> &tokens, const Position target, const Position piecePosition, const Board& board) {
-    PieceKind promotionType = PieceKind::None;
-    bool isEnPassant = false;
-    Piece* enPassantVictim = nullptr;
+PawnMoveContext Interpreter::resolve_pawn_move(std::vector<Token> &tokens, const Position target, const Position piece_position, const Board& board) {
+    PieceKind promotion_type = PieceKind::None;
+    bool is_en_passant = false;
+    Piece* en_passant_victim = nullptr;
 
-    auto itPromotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
-    if (itPromotion != tokens.end()) {
-        promotionType = getPieceKind(std::next(itPromotion)->value);
+    auto it_promotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
+    if (it_promotion != tokens.end()) {
+        promotion_type = get_piece_kind_from_char(std::next(it_promotion)->value);
     }
-    if (isCapture(tokens) && !board.atPosition(target)) {
-        isEnPassant = true;
-        enPassantVictim = board.atPosition({target.x, piecePosition.y});
+    if (is_capturing(tokens) && !board.piece_at_position(target)) {
+        is_en_passant = true;
+        en_passant_victim = board.piece_at_position({target.x, piece_position.y});
     }
 
     return {
-        .isEnPassant = isEnPassant,
-        .promotionType = promotionType,
-        .enPassantVictim = enPassantVictim
+        .is_en_passant = is_en_passant,
+        .promotion_type = promotion_type,
+        .en_passant_victim = en_passant_victim
     };
 }
 
-PieceKind Interpreter::getPieceKind(const char p) {
+PieceKind Interpreter::get_piece_kind_from_char(const char p) {
     switch (std::toupper(p)) {
         case 'P': return PieceKind::Pawn;
         case 'R': return PieceKind::Rook;
@@ -143,7 +142,7 @@ PieceKind Interpreter::getPieceKind(const char p) {
     }
 }
 
-bool Interpreter::isCapture(const std::vector<Token>& tokens) {
+bool Interpreter::is_capturing(const std::vector<Token>& tokens) {
     return std::ranges::any_of(tokens, [&](const auto item) {
         return item.type == TokenType::Action;
     });

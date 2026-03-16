@@ -5,6 +5,7 @@
 #ifndef CCHESS_TOKEN_H
 #define CCHESS_TOKEN_H
 #include <string>
+#include <vector>
 
 constexpr std::string_view PIECES = "KQRBN";
 constexpr std::string_view COLUMNS = "abcdefgh";
@@ -21,11 +22,13 @@ enum class TokenType {
     Special,
 };
 
-struct Token {
+class Token {
+    static TokenType get_token_type(char v);
+
+public:
     TokenType type;
     char value;
-
-    static TokenType getTokenType(char v);
+    static std::vector<Token> string_to_token (const std::string_view& s);
 
     explicit Token(char v);
 };

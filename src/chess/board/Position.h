@@ -8,7 +8,7 @@
 struct Position {
     int x, y;
 
-    [[nodiscard]] bool isValid() const {
+    [[nodiscard]] bool is_valid() const {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 

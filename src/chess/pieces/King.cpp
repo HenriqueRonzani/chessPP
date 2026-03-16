@@ -4,31 +4,31 @@
 
 #include "King.h"
 
-#include <algorithm>
+std::vector<Position> King::generate_pseudo_legal_moves(const Position pos, const Board &board) const {
+    static const std::vector<Position> king_move_directions = {
+        {1, -1}, {-1, 1}, {1, 1}, {-1, -1},
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
 
-std::vector<Position> King::generateMoves(const Position pos, const Board &board) const {
-    const std::vector<Position> diagonalDirections = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
-    const std::vector<Position> horizontalDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    std::vector<Position> moves = generate_sliding_moves(pos, board, king_move_directions, 1);
 
-    std::vector<Position> moves = generateSlidingMoves(pos, board, horizontalDirections, 1);
-    std::vector<Position> diagonalMoves = generateSlidingMoves(pos, board, diagonalDirections, 1);
+    const PieceColor king_color = board.piece_at_position(pos)->get_color();
 
-    moves.insert(moves.end(), diagonalMoves.begin(), diagonalMoves.end());
+    if (!board.history.piece_has_moved(this) && !board.is_king_attacked(king_color)) {
 
-    if (!board.history.pieceHasMoved(this)) {
-        const Piece* hRook = board.atPosition({pos.x + 3, pos.y});
-        if (hRook && !board.history.pieceHasMoved(hRook)) {
-            if (!board.atPosition({pos.x + 1, pos.y}) &&
-                !board.atPosition({pos.x + 2, pos.y})
+        const Piece* column_h_rook = board.piece_at_position({pos.x + 3, pos.y});
+        if (column_h_rook && !board.history.piece_has_moved(column_h_rook)) {
+            if (board.is_square_free_and_not_attacked({pos.x + 1, pos.y}, king_color) &&
+                board.is_square_free_and_not_attacked({pos.x + 2, pos.y}, king_color)
                 )
                 moves.push_back({pos.x + 2, pos.y});
         }
 
-        const Piece* aRook = board.atPosition({pos.x - 4, pos.y});
-        if (aRook && !board.history.pieceHasMoved(aRook)) {
-            if (!board.atPosition({pos.x - 1, pos.y}) &&
-                !board.atPosition({pos.x - 2, pos.y}) &&
-                !board.atPosition({pos.x - 3, pos.y})
+        const Piece* column_a_rook = board.piece_at_position({pos.x - 4, pos.y});
+        if (column_a_rook && !board.history.piece_has_moved(column_a_rook)) {
+            if (board.is_square_free_and_not_attacked({pos.x - 1, pos.y}, king_color) &&
+                board.is_square_free_and_not_attacked({pos.x - 2, pos.y}, king_color) &&
+                board.piece_at_position({pos.x - 3, pos.y}) == nullptr
                 )
                 moves.push_back({pos.x - 2, pos.y});
         }

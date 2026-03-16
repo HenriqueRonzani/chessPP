@@ -4,42 +4,42 @@
 
 #include "Pawn.h"
 
-std::vector<Position> Pawn::generateMoves(const Position pos, const Board& board) const {
-    const int movementDirection = color == PieceColor::White ? 1 : -1;
-    const int startRow = color == PieceColor::White ? 1 : 6;
+std::vector<Position> Pawn::generate_pseudo_legal_moves(const Position pos, const Board& board) const {
+    const int move_directions = color == PieceColor::White ? 1 : -1;
+    const int starting_row = color == PieceColor::White ? 1 : 6;
 
     std::vector<Position> possibleMoves;
 
-    const Position moveForward = { pos.x, pos.y + movementDirection };
-    if (moveForward.isValid() && board.atPosition(moveForward) == nullptr) {
-        possibleMoves.push_back(moveForward);
+    const Position forward_position = { pos.x, pos.y + move_directions };
+    if (forward_position.is_valid() && board.is_square_free(forward_position)) {
+        possibleMoves.push_back(forward_position);
 
-        const Position doubleForward = { pos.x, pos.y + movementDirection * 2 };
-        if (pos.y == startRow && doubleForward.isValid() && board.atPosition(doubleForward) == nullptr) {
-            possibleMoves.push_back(doubleForward);
+        const Position double_forward_position = { pos.x, pos.y + move_directions * 2 };
+        if (pos.y == starting_row && double_forward_position.is_valid() && board.is_square_free(double_forward_position)) {
+            possibleMoves.push_back(double_forward_position);
         }
     }
 
     for (const int xShift : { 1, -1 }) {
-        const Position capturePosition = { pos.x + xShift, pos.y + movementDirection};
-        if (capturePosition.isValid()) {
-            const Piece* pieceAtPosition = board.atPosition(capturePosition);
-            if (pieceAtPosition != nullptr && pieceAtPosition->isEnemy(this)) {
-                possibleMoves.push_back(capturePosition);
+        const Position capture_position = { pos.x + xShift, pos.y + move_directions};
+        if (capture_position.is_valid()) {
+            const Piece* pieceAtPosition = board.piece_at_position(capture_position);
+            if (pieceAtPosition != nullptr && pieceAtPosition->is_enemy(this)) {
+                possibleMoves.push_back(capture_position);
             }
         }
     }
 
-    if (const auto lastMoveOpt = board.history.getLastMove()) {
-        const Move& lastMove = *lastMoveOpt;
+    if (const auto last_move_opt = board.history.get_last_move()) {
+        const Move& last_move = *last_move_opt;
         if (
-            lastMove.movedPiece->kind == PieceKind::Pawn &&
-            isEnemy(lastMove.movedPiece) &&
-            std::abs(lastMove.to.y - lastMove.from.y) == 2 &&
-            pos.y == lastMove.to.y &&
-            std::abs(pos.x - lastMove.to.x) == 1
+            last_move.moved_piece->get_kind() == PieceKind::Pawn &&
+            is_enemy(last_move.moved_piece) &&
+            std::abs(last_move.moved_to_position.y - last_move.moved_from_position.y) == 2 &&
+            pos.y == last_move.moved_to_position.y &&
+            std::abs(pos.x - last_move.moved_to_position.x) == 1
         ) {
-            possibleMoves.push_back({lastMove.to.x, pos.y + movementDirection});
+            possibleMoves.push_back({last_move.moved_to_position.x, pos.y + move_directions});
         }
     }
 

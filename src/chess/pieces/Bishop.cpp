@@ -4,7 +4,7 @@
 
 #include "Bishop.h"
 
-std::vector<Position> Bishop::generateMoves(const Position pos, const Board &board) const {
-    const std::vector<Position> moveDirections = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
-    return generateSlidingMoves(pos, board, moveDirections);
+std::vector<Position> Bishop::generate_pseudo_legal_moves(const Position pos, const Board &board) const {
+    static const std::vector<Position> move_directions = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
+    return generate_sliding_moves(pos, board, move_directions);
 }

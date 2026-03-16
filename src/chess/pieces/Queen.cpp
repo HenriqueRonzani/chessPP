@@ -4,13 +4,10 @@
 
 #include "Queen.h"
 
-std::vector<Position> Queen::generateMoves(const Position pos, const Board &board) const {
-    const std::vector<Position> diagonalDirections = {{1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
-    const std::vector<Position> horizontalDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-    std::vector<Position> moves = generateSlidingMoves(pos, board, horizontalDirections);
-    std::vector<Position> diagonalMoves = generateSlidingMoves(pos, board, diagonalDirections);
-
-    moves.insert(moves.end(), diagonalMoves.begin(), diagonalMoves.end());
-    return moves;
+std::vector<Position> Queen::generate_pseudo_legal_moves(const Position pos, const Board &board) const {
+    static const std::vector<Position> move_directions = {
+        {1, -1}, {-1, 1}, {1, 1}, {-1, -1},
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+    return generate_sliding_moves(pos, board, move_directions);
 }
