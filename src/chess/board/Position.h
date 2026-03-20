@@ -12,6 +12,10 @@ struct Position {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 
+    [[nodiscard]] bool is_adjacent(const Position& pos) const {
+        return abs(x - pos.x) == 1 && y - pos.y == 0;
+    }
+
     bool operator==(const Position& pos) const {
         return x == pos.x && y == pos.y;
     }

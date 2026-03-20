@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "../board/Board.h"
 #include "../board/Position.h"
 #include "../pieces/PieceTypes.h"
 
@@ -22,6 +24,7 @@ struct Move {
     bool is_castle = false;
     bool is_en_passant = false;
     PieceKind promotion_type = PieceKind::None;
+    GameState previous_state;
 };
 
 class MoveHistory {
@@ -31,6 +34,8 @@ class MoveHistory {
     MoveHistory() = default;
     [[nodiscard]] std::optional<Move> get_last_move() const;
     void push_move(const Move& move);
+    Move& peek_last();
+    void remove_last();
     bool piece_has_moved (const Piece* piece) const;
 };
 

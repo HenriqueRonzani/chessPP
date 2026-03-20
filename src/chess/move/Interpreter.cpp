@@ -10,6 +10,8 @@
 #include "./MoveHistory.h"
 #include <stdexcept>
 
+#include "../helpers/BoardRules.h"
+
 Move Interpreter::parse_string(const std::string_view &move_string, Board& board, const PieceColor moving_color) {
     Move move;
 
@@ -20,7 +22,7 @@ Move Interpreter::parse_string(const std::string_view &move_string, Board& board
         move = resolve_move(tokens, moving_color, board, move_string);
     }
 
-    if (!board.is_move_legal(move.moved_from_position, move.moved_to_position))
+    if (!chess::rules::is_move_legal(board, move.moved_from_position, move.moved_to_position))
         throw std::invalid_argument("Illegal move");
     return move;
 }
@@ -29,8 +31,8 @@ Move Interpreter::resolve_castle_move(const PieceColor piece_color, const Board 
     const int castle_x_diff = move_string.length() == 3 ? 2 : -2;
 
     const Position king_position = piece_color == PieceColor::White
-        ? Board::white_king_start
-        : Board::black_king_start;
+        ? WHITE_KING_START
+        : BLACK_KING_START;
 
     const Position target = {king_position.x + castle_x_diff, king_position.y};
 
@@ -58,10 +60,10 @@ Move Interpreter::resolve_move(std::vector<Token>& tokens, const PieceColor piec
     const auto [target, it_target_row] = resolve_target(tokens);
     const auto [origin_column, origin_row] = resolve_disambiguation(tokens, it_target_row);
 
-    const Position from_position = board.find_moveable_to_target(target, piece_kind, piece_color, origin_column, origin_row);
+    const Position from_position = chess::rules::find_moveable_to_target(target, piece_kind, piece_color, origin_column, origin_row);
 
     const auto [is_en_passant, promotion_type, en_passant_victim] = resolve_pawn_move(tokens, target, from_position, board);
-    Piece* capturedPiece = is_en_passant ? en_passant_victim : board.piece_at_position(target);
+    const Piece* capturedPiece = is_en_passant ? en_passant_victim : board.piece_at_position(target);
 
     if (promotion_type == PieceKind::None && (target.y == 0 || target.y == 7) && piece_kind == PieceKind::Pawn)
         throw std::invalid_argument("Invalid Promotion Type");
@@ -112,7 +114,7 @@ Position Interpreter::resolve_disambiguation(std::vector<Token>& tokens, const T
 PawnMoveContext Interpreter::resolve_pawn_move(std::vector<Token> &tokens, const Position target, const Position piece_position, const Board& board) {
     PieceKind promotion_type = PieceKind::None;
     bool is_en_passant = false;
-    Piece* en_passant_victim = nullptr;
+    const Piece* en_passant_victim = nullptr;
 
     auto it_promotion = std::ranges::find(tokens, TokenType::Promotion, &Token::type);
     if (it_promotion != tokens.end()) {

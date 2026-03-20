@@ -17,6 +17,14 @@ void MoveHistory::push_move(const Move& move) {
     history.push_back(move);
 }
 
+void MoveHistory::remove_last() {
+    history.pop_back();
+}
+
+Move& MoveHistory::peek_last() {
+    return history.back();
+}
+
 bool MoveHistory::piece_has_moved(const Piece *piece) const {
     return std::ranges::any_of(history, [&](const Move& move) {
         return move.moved_piece == piece;

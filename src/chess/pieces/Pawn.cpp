@@ -4,6 +4,8 @@
 
 #include "Pawn.h"
 
+#include "../helpers/BoardRules.h"
+
 std::vector<Position> Pawn::generate_pseudo_legal_moves(const Position pos, const Board& board) const {
     const int move_directions = color == PieceColor::White ? 1 : -1;
     const int starting_row = color == PieceColor::White ? 1 : 6;
@@ -11,11 +13,11 @@ std::vector<Position> Pawn::generate_pseudo_legal_moves(const Position pos, cons
     std::vector<Position> possibleMoves;
 
     const Position forward_position = { pos.x, pos.y + move_directions };
-    if (forward_position.is_valid() && board.is_square_free(forward_position)) {
+    if (forward_position.is_valid() && chess::rules::is_square_free(board, forward_position)) {
         possibleMoves.push_back(forward_position);
 
         const Position double_forward_position = { pos.x, pos.y + move_directions * 2 };
-        if (pos.y == starting_row && double_forward_position.is_valid() && board.is_square_free(double_forward_position)) {
+        if (pos.y == starting_row && double_forward_position.is_valid() && chess::rules::is_square_free(board, double_forward_position)) {
             possibleMoves.push_back(double_forward_position);
         }
     }
@@ -30,17 +32,11 @@ std::vector<Position> Pawn::generate_pseudo_legal_moves(const Position pos, cons
         }
     }
 
-    if (const auto last_move_opt = board.history.get_last_move()) {
-        const Move& last_move = *last_move_opt;
-        if (
-            last_move.moved_piece->get_kind() == PieceKind::Pawn &&
-            is_enemy(last_move.moved_piece) &&
-            std::abs(last_move.moved_to_position.y - last_move.moved_from_position.y) == 2 &&
-            pos.y == last_move.moved_to_position.y &&
-            std::abs(pos.x - last_move.moved_to_position.x) == 1
-        ) {
-            possibleMoves.push_back({last_move.moved_to_position.x, pos.y + move_directions});
-        }
+    if (const auto en_passant_target = board.state.en_passant_target;
+        en_passant_target &&
+        en_passant_target->is_adjacent(pos)
+    ) {
+        possibleMoves.push_back({en_passant_target.value().x, pos.y + move_directions});
     }
 
     return possibleMoves;

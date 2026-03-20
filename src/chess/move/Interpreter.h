@@ -19,7 +19,7 @@ struct Target {
 struct PawnMoveContext {
     bool is_en_passant = false;
     PieceKind promotion_type = PieceKind::None;
-    Piece* en_passant_victim = nullptr;
+    const Piece* en_passant_victim = nullptr;
 };
 
 class Interpreter {

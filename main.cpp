@@ -21,15 +21,20 @@ int main() {
         }
         std::cout << "Next to play: " << color_name << std::endl;
 
-        std::cout << "Type 'quit' to exit" << std:: endl;
+        std::cout << "Type 'quit' to exit" << std::endl;
 
         try {
             std::string move_string;
             std::cin >> move_string;
             if (move_string == "quit") break;
-            engine.make_move(move_string);
+            if (move_string == "undo") {
+                engine.undo_move();
+            }
+            else {
+                engine.make_move(move_string);
+            }
         } catch (std::invalid_argument& e) {
-            std::cout << e.what() << std:: endl;
+            std::cout << e.what() << std::endl;
         }
     }
     return 0;
