@@ -6,7 +6,6 @@
 #define CCHESS_ROOK_H
 #include "Piece.h"
 
-
 class Rook : public Piece {
 public:
     explicit Rook(const PieceColor color) : Piece(PieceKind::Rook, color) {}

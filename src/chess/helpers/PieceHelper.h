@@ -1,29 +1,14 @@
 //
-// Created by global on 30/01/2026.
+// Created by ronzani on 3/21/26.
 //
 
-#ifndef CCHESS_PIECETYPES_H
-#define CCHESS_PIECETYPES_H
-
+#ifndef CCHESS_PIECEHELPER_H
+#define CCHESS_PIECEHELPER_H
 #include <string>
 
-enum class PieceKind {
-    King,
-    Queen,
-    Rook,
-    Knight,
-    Bishop,
-    Pawn,
-    None
-};
+#include "../ChessTypes.h"
 
-enum class PieceColor {
-    White,
-    Black,
-    None
-};
-
-namespace PieceTypeHelper {
+namespace chess::piece_helper {
     static std::string get_kind_name(const PieceKind kind) {
         switch (kind) {
             case PieceKind::King:   return "King";
@@ -51,4 +36,5 @@ namespace PieceTypeHelper {
     }
 }
 
-#endif //CCHESS_PIECETYPES_H
+
+#endif //CCHESS_PIECEHELPER_H

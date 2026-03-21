@@ -2,11 +2,12 @@
 // Created by ronzani on 19/03/2026.
 //
 
-#include "BoardRules.h"
+#include "BoardHelper.h"
 
 #include <algorithm>
 #include <array>
 #include <stdexcept>
+#include "../pieces/Piece.h"
 
 namespace chess::rules {
     CastleRookPositions get_rook_castle_positions(const Move &move) {
@@ -36,7 +37,7 @@ namespace chess::rules {
                 if (piece_column != -1 && piece_column != i) continue;
                 if (piece_row != -1 && piece_row != j) continue;
 
-                if (piece->is_movement_pseudo_legal({i, j}, target, *this)) {
+                if (piece->is_movement_pseudo_legal({i, j}, target, board)) {
                     moveable_pieces_positions.emplace_back(i, j);
                 }
             }

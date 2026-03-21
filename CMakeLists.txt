@@ -4,7 +4,6 @@ project(cchess)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(cchess main.cpp
-        src/chess/board/Position.h
         src/chess/pieces/Piece.h
         src/chess/board/Board.cpp
         src/chess/board/Board.h
@@ -27,8 +26,9 @@ add_executable(cchess main.cpp
         src/chess/move/Interpreter.h
         src/chess/move/Token.cpp
         src/chess/move/Token.h
-        src/chess/pieces/PieceTypes.h
         src/chess/Engine.h
-        src/chess/helpers/BoardRules.cpp
-        src/chess/helpers/BoardRules.h
+        src/chess/helpers/BoardHelper.cpp
+        src/chess/helpers/BoardHelper.h
+        src/chess/ChessTypes.h
+        src/chess/helpers/PieceHelper.h
 )

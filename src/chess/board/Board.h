@@ -4,30 +4,22 @@
 
 #ifndef CCHESS_BOARD_H
 #define CCHESS_BOARD_H
-#include "Position.h"
+
 #include <string>
-#include "../move/MoveHistory.h"
-#include "../pieces/Piece.h"
+#include "../ChessTypes.h"
 
 class Piece;
 
-static constexpr Position WHITE_KING_START = { 4, 0 };
-static constexpr Position BLACK_KING_START = { 4, 7 };
-
-struct GameState {
-    Position white_king_pos = WHITE_KING_START;
-    Position black_king_pos = BLACK_KING_START;
-    std::optional<Position> en_passant_target;
-    bool white_can_castle_king_side = true;
-    bool white_can_castle_queen_side = true;
-    bool black_can_castle_king_side = true;
-    bool black_can_castle_queen_side = true;
+enum class CastleDirection {
+    KingSide = 0,
+    QueenSide = 1
 };
 
 class Board {
     void move_piece(Position from, Position to);
     void undo_move_piece(Position from, Position to);
-
+    void update_king_position(Position new_position, PieceColor king_color);
+    void revoke_castle(CastleDirection castle_direction, PieceColor king_color);
 public:
     const Piece* grid[8][8];
     GameState state;
@@ -38,8 +30,7 @@ public:
     void undo_move(const Move &move);
     void update_game_state(const Move& move);
 
-    [[nodiscard]] bool can_castle_long(PieceColor color) const;
-    [[nodiscard]] bool can_castle_short(PieceColor color) const;
+    bool can_castle(CastleDirection castle_direction, PieceColor piece_color) const;
 
     [[nodiscard]] std::string to_string() const;
 

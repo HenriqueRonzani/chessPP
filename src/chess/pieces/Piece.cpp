@@ -13,6 +13,7 @@
 #include "Pawn.h"
 #include "Queen.h"
 #include "Rook.h"
+#include "../board/Board.h"
 
 char Piece::to_char() const {
     char kind_char;

@@ -4,18 +4,18 @@
 
 #include "Board.h"
 
+#include <iostream>
 #include <set>
 #include <stdexcept>
 
+#include "../helpers/BoardHelper.h"
 #include "../pieces/Bishop.h"
 #include "../pieces/King.h"
 #include "../pieces/Knight.h"
 #include "../pieces/Pawn.h"
 #include "../pieces/Queen.h"
 #include "../pieces/Rook.h"
-#include "./Position.h"
-#include "../helpers/BoardRules.h"
-#include "../move/Interpreter.h"
+
 
 void Board::reset_board() {
     for (auto & i : grid) {
@@ -89,14 +89,6 @@ void Board::undo_move_piece(const Position from, const Position to) {
 void Board::handle_move(const Move& move) {
     move_piece(move.moved_from_position, move.moved_to_position);
 
-    if (move.moved_piece->get_kind() == PieceKind::King) {
-        if (move.moved_piece->get_color() == PieceColor::White) {
-            state.white_king_pos = move.moved_to_position;
-        } else {
-            state.black_king_pos = move.moved_to_position;
-        }
-    }
-
     if (move.is_en_passant) {
         grid[move.moved_from_position.y][move.moved_to_position.x] = nullptr;
     }
@@ -110,6 +102,8 @@ void Board::handle_move(const Move& move) {
         const Piece* promoted = Piece::create(move.promotion_type, move.moved_piece->get_color());
         grid[move.moved_to_position.y][move.moved_to_position.x] = promoted;
     }
+
+    update_game_state(move);
 }
 
 void Board::undo_move(const Move& move){
@@ -142,18 +136,50 @@ void Board::undo_move(const Move& move){
 }
 
 void Board::update_game_state(const Move& move) {
-    // TODO: implement update game state
+    const bool is_pawn_double_move = move.moved_piece->get_kind() == PieceKind::Pawn &&
+        abs(move.moved_to_position.x - move.moved_from_position.x) == 2;
+
+    state.en_passant_target = is_pawn_double_move
+        ? std::make_optional(move.moved_to_position)
+        : std::nullopt;
+
+    if (move.moved_piece->get_kind() == PieceKind::King) {
+        const PieceColor king_color = move.moved_piece->get_color();
+        update_king_position(move.moved_to_position, king_color);
+        revoke_castle(CastleDirection::QueenSide, king_color);
+        revoke_castle(CastleDirection::KingSide, king_color);
+    }
+
+    for (const auto rook_starting_positions =  std::vector<Position>{ {0, 0}, {0, 7}, {7, 0}, {7, 7} }; const auto position : rook_starting_positions) {
+        const PieceColor color = position.x == 0 ? PieceColor::White : PieceColor::Black;
+        const CastleDirection direction = position.y == 0 ? CastleDirection::QueenSide : CastleDirection::KingSide;
+
+        if (
+            move.moved_from_position == position ||
+            move.moved_to_position == position
+        ) {
+            revoke_castle(direction, color);
+            break;
+        }
+    }
 }
 
-bool Board::can_castle_long(const PieceColor color) const {
-    return color == PieceColor::White
-        ? state.white_can_castle_queen_side
-        : state.black_can_castle_queen_side;
+void Board::update_king_position(const Position new_position, const PieceColor king_color) {
+    if (king_color == PieceColor::White) {
+        state.white_king_pos = new_position;
+    } else {
+        state.black_king_pos = new_position;
+    }
 }
 
-bool Board::can_castle_short(const PieceColor color) const {
-    return color == PieceColor::White
-        ? state.black_can_castle_queen_side
-        : state.white_can_castle_queen_side;
+void Board::revoke_castle(const CastleDirection castle_direction, const PieceColor king_color) {
+    const int color_index = static_cast<int>(king_color);
+    const int side_index  = static_cast<int>(castle_direction);
+    state.can_castle[color_index][side_index] = false;
 }
 
+bool Board::can_castle(const CastleDirection castle_direction, const PieceColor piece_color) const {
+    const int color_index = static_cast<int>(piece_color);
+    const int side_index  = static_cast<int>(castle_direction);
+    return state.can_castle[color_index][side_index];
+}

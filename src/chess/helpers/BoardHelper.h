@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "../board/Board.h"
-#include "../board/Position.h"
-#include "../pieces/PieceTypes.h"
+
+class Piece;
 
 namespace chess::rules {
     struct CastleRookPositions {
@@ -30,7 +30,7 @@ namespace chess::rules {
     bool is_king_attacked(const Board&, PieceColor piece_color);
     bool is_move_legal(Board&, Position from_position, Position to_position);
     bool has_legal_moves(Board&, PieceColor piece_color);
-    Position find_moveable_to_target(Position target, PieceKind kind, PieceColor color, int piece_column = -1, int piece_row = -1) const;
+    Position find_moveable_to_target(const Board& board, Position target, PieceKind kind, PieceColor color, int piece_column = -1, int piece_row = -1);
 };
 
 

@@ -10,7 +10,8 @@
 #include "./MoveHistory.h"
 #include <stdexcept>
 
-#include "../helpers/BoardRules.h"
+#include "../helpers/BoardHelper.h"
+#include "../pieces/Piece.h"
 
 Move Interpreter::parse_string(const std::string_view &move_string, Board& board, const PieceColor moving_color) {
     Move move;
@@ -48,11 +49,12 @@ Move Interpreter::resolve_castle_move(const PieceColor piece_color, const Board 
         .moved_to_position = target,
         .is_castle = true,
         .is_en_passant = false,
-        .promotion_type = PieceKind::None
+        .promotion_type = PieceKind::None,
+        .previous_state = board.state
     };
 }
 
-Move Interpreter::resolve_move(std::vector<Token>& tokens, const PieceColor piece_color, const Board& board, const std::string_view move_string) {
+Move Interpreter::resolve_move(std::vector<Token> &tokens, const PieceColor piece_color, Board &board, const std::string_view move_string) {
     const PieceKind piece_kind = tokens[0].type == TokenType::Piece
         ? get_piece_kind_from_char(tokens[0].value)
         : PieceKind::Pawn;
@@ -60,7 +62,7 @@ Move Interpreter::resolve_move(std::vector<Token>& tokens, const PieceColor piec
     const auto [target, it_target_row] = resolve_target(tokens);
     const auto [origin_column, origin_row] = resolve_disambiguation(tokens, it_target_row);
 
-    const Position from_position = chess::rules::find_moveable_to_target(target, piece_kind, piece_color, origin_column, origin_row);
+    const Position from_position = chess::rules::find_moveable_to_target(board, target, piece_kind, piece_color, origin_column, origin_row);
 
     const auto [is_en_passant, promotion_type, en_passant_victim] = resolve_pawn_move(tokens, target, from_position, board);
     const Piece* capturedPiece = is_en_passant ? en_passant_victim : board.piece_at_position(target);

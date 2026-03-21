@@ -6,8 +6,6 @@
 
 #include <algorithm>
 
-#include "../pieces/Piece.h"
-
 std::optional<Move> MoveHistory::get_last_move() const {
     if (history.empty()) return std::nullopt;
     return history.back();

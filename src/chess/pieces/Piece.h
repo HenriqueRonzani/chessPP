@@ -4,9 +4,10 @@
 
 #ifndef CCHESS_PIECE_H
 #define CCHESS_PIECE_H
-#include "PieceTypes.h"
-#include "../board/Board.h"
-#include "../move/MoveHistory.h"
+
+#include <vector>
+
+#include "../ChessTypes.h"
 
 class Board;
 

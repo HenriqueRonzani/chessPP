@@ -23,7 +23,7 @@ struct PawnMoveContext {
 };
 
 class Interpreter {
-    static Move resolve_move(std::vector<Token> &tokens, PieceColor piece_color, const Board &board, std::string_view move_string);
+    static Move resolve_move(std::vector<Token> &tokens, PieceColor piece_color, Board &board, std::string_view move_string);
     static Move resolve_castle_move(PieceColor piece_color, const Board &board, std::string_view move_string);
     static PawnMoveContext resolve_pawn_move(std::vector<Token> &tokens, Position target, Position piece_position, const Board &board);
     static Target resolve_target(std::vector<Token> &tokens);

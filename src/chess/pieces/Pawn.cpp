@@ -4,7 +4,7 @@
 
 #include "Pawn.h"
 
-#include "../helpers/BoardRules.h"
+#include "../helpers/BoardHelper.h"
 
 std::vector<Position> Pawn::generate_pseudo_legal_moves(const Position pos, const Board& board) const {
     const int move_directions = color == PieceColor::White ? 1 : -1;
