@@ -11,6 +11,10 @@ std::optional<Move> MoveHistory::get_last_move() const {
     return history.back();
 }
 
+std::vector<Move> MoveHistory::get_history() const {
+    return history;
+}
+
 void MoveHistory::push_move(const Move& move) {
     history.push_back(move);
 }

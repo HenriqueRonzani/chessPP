@@ -15,6 +15,7 @@ class MoveHistory {
     public:
     MoveHistory() = default;
     [[nodiscard]] std::optional<Move> get_last_move() const;
+    std::vector<Move> get_history() const;
     void push_move(const Move& move);
     Move& peek_last();
     void remove_last();

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <array>
+#include <ranges>
 #include <stdexcept>
 #include "../pieces/Piece.h"
 
@@ -176,4 +177,19 @@ namespace chess::rules {
         }
         return false;
     }
+
+
+    bool check_fifty_move_rule(const std::vector<Move> &history) {
+        if (history.size() < 50) {
+            return false;
+        }
+
+        return std::ranges::any_of(
+            history | std::ranges::views::reverse | std::ranges::views::take(50),
+            [&](const Move& move) {
+                return move.captured_piece || move.moved_piece->get_kind() == PieceKind::Pawn;
+            }
+        );
+    }
+
 }

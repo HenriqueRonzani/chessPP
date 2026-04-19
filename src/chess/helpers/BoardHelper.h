@@ -31,6 +31,9 @@ namespace chess::rules {
     bool is_move_legal(Board&, Position from_position, Position to_position);
     bool has_legal_moves(Board&, PieceColor piece_color);
     Position find_moveable_to_target(const Board& board, Position target, PieceKind kind, PieceColor color, int piece_column = -1, int piece_row = -1);
+
+    // Returns true in valid play, false for draw
+    bool check_fifty_move_rule (const std::vector<Move> &history);
 };
 
 
