@@ -181,7 +181,7 @@ namespace chess::rules {
 
     bool check_fifty_move_rule(const std::vector<Move> &history) {
         if (history.size() < 50) {
-            return false;
+            return true;
         }
 
         return std::ranges::any_of(
