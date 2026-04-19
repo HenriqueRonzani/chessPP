@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "src/chess/Engine.h"
-#include "src/chess/board/Board.h"
+#include "../chess/Engine.h"
+#include "../chess/board/Board.h"
 
 int main() {
     Engine engine;
