@@ -30,7 +30,7 @@ public:
     void undo_move(const Move &move);
     void update_game_state(const Move& move);
 
-    bool can_castle(CastleDirection castle_direction, PieceColor piece_color) const;
+    [[nodiscard]] bool can_castle(CastleDirection castle_direction, PieceColor piece_color) const;
 
     [[nodiscard]] std::string to_string() const;
 

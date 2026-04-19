@@ -42,18 +42,21 @@ add_library(cchess_engine
         src/chess/helpers/PieceHelper.h
 )
 
+target_include_directories(cchess_engine PUBLIC src)
+
 # ===========================
 #            CLI
 # ===========================
 
-add_executable(cchess_cli src/cli/main_cli.cpp
-        src/gui/render/Board.cpp
-        src/gui/render/Board.h)
+add_executable(cchess_cli src/cli/main_cli.cpp)
 target_link_libraries(cchess_cli PRIVATE cchess_engine)
 
 # ===========================
 #            GUI
 # ===========================
 
-add_executable(cchess_gui src/gui/main_gui.cpp)
+add_executable(cchess_gui
+        src/gui/main_gui.cpp
+        src/gui/render/Screen.cpp
+        src/gui/render/Screen.h)
 target_link_libraries(cchess_gui PRIVATE cchess_engine raylib)

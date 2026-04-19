@@ -11,19 +11,19 @@
 namespace chess::piece_helper {
     static std::string get_kind_name(const PieceKind kind) {
         switch (kind) {
-            case PieceKind::King:   return "King";
-            case PieceKind::Queen:  return "Queen";
-            case PieceKind::Rook:   return "Rook";
-            case PieceKind::Knight: return "Knight";
-            case PieceKind::Bishop: return "Bishop";
-            case PieceKind::Pawn:   return "Pawn";
+            case PieceKind::King:   return "king";
+            case PieceKind::Queen:  return "queen";
+            case PieceKind::Rook:   return "rook";
+            case PieceKind::Knight: return "knight";
+            case PieceKind::Bishop: return "bishop";
+            case PieceKind::Pawn:   return "pawn";
             default:                return "-";
         }
     }
     static std::string get_color_name(const PieceColor color) {
         switch (color) {
-            case PieceColor::White: return "White";
-            case PieceColor::Black: return "Black";
+            case PieceColor::White: return "white";
+            case PieceColor::Black: return "black";
             default:                return "-";
         }
     }
